@@ -1,5 +1,5 @@
 # Cadastro de a
 
-**como** cadastro de biblioteca  
-**quero** cadastrar as informações de livro
-**para** conseguir gerenciar a estrutura de uma biblioteca
+**Como** cadastro de biblioteca  
+**Quero** cadastrar as informações de livro
+**Para** conseguir gerenciar a estrutura de uma biblioteca
