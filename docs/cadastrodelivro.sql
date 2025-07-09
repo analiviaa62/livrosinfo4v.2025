@@ -1,0 +1,5 @@
+CREATE TABLE livros (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    titulo VARCHAR(200) NOT NULL,
+    autor VARCHAR(150) NOT NULL
+);
