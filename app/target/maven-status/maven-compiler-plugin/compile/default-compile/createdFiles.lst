@@ -1,0 +1,5 @@
+br\edu\ifrn\livros\OlaSpringBoot.class
+br\edu\ifrn\livros\Application.class
+br\edu\ifrn\livros\persistencia\controladores\UsuarioController.class
+br\edu\ifrn\livros\persistencia\repositorio\UsuarioRepository.class
+br\edu\ifrn\livros\persistencia\modelo\Usuario.class
