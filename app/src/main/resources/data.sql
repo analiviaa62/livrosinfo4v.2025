@@ -1,4 +1,4 @@
-INSERT INTO cadastrousuario (descricao) VALUES
+INSERT INTO cadastrousuario (id, nome, email, numero) VALUES
   ('12121212'),
   ('ana'),
     ('analiviaa@gmail.com'),
