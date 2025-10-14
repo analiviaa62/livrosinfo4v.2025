@@ -2,13 +2,10 @@
 sera usado para a disciplina de programacao para internet
 
 ## contexto
-Em uma universidade de médio porte, há uma biblioteca que atende a milhares de alunos,
-professores e funcionários. A gestão dos livros e materiais de leitura está se tornando cada
-vez mais difícil devido ao grande volume de usuários e itens que circulam pela biblioteca. A
-falta de um sistema eficiente para gerenciar o empréstimo, devolução e reserva de livros
-está resultando em confusão, extravio de materiais e insatisfação entre os usuários.
-Portanto, é necessário o desenvolvimento de um Sistema de Gestão de Biblioteca
-Universitária, que permita o controle eficiente de todos os materiais e a interação de
-usuários com os recursos da biblioteca. O sistema deve ser capaz de gerenciar o catálogo
-de livros, os empréstimos e devoluções, as reservas de livros e as informações dos
-usuários.
+
+O projeto SmartLibrary tem como objetivo o desenvolvimento de um sistema web voltado ao gerenciamento de uma biblioteca acadêmica.
+ O sistema busca automatizar processos de empréstimo, reserva e controle de acervo, permitindo uma gestão mais eficiente por parte dos bibliotecários e uma experiência mais prática e acessível para os usuários.
+O problema identificado foi a falta de controle e registro digital eficiente de livros e empréstimos em ambientes escolares, o que frequentemente leva à perda de informações, atrasos e desorganização do acervo.
+ Dessa forma, o sistema visa modernizar o gerenciamento da biblioteca, reduzindo o trabalho manual e proporcionando transparência e agilidade nas operações.
+Os usuários finais são os leitores (alunos, professores e visitantes) e os bibliotecários responsáveis pela administração do acervo.
+ A relevância do projeto está em fornecer uma ferramenta simples, responsiva e confiável, integrando cadastros, controle de empréstimos e notificações automáticas.
