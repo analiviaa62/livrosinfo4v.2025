@@ -19,14 +19,12 @@ public class UsuarioController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    // LISTAR
     @GetMapping
     public String listar(Model model) {
         model.addAttribute("usuarios", usuarioRepository.findAll());
         return "Usuario/lista-usuario";
     }
 
-    // FORM DE NOVO
     @GetMapping("/novo")
     public String formulario(Model model) {
         model.addAttribute("usuario", new Usuario());
