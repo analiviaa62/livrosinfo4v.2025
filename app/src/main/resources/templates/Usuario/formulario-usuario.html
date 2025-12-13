@@ -1,156 +1,571 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Cadastro de Usuário</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${usuario.id != null} ? 'Editar Usuário - SmartLibrary' : 'Cadastrar Usuário - SmartLibrary'">Cadastrar Usuário - SmartLibrary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Estilos gerais para o corpo da página */
+        /* MANTENHA TODO O SEU CSS AQUI (é bom) */
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --success: #4cc9f0;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --radius: 16px;
+            --transition: all 0.3s ease;
+        }
+
+         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 24px;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 32px;
+        }
+
+        .back-btn {
+            background: white;
+            color: var(--primary);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            font-size: 42px;
+            font-weight: 800;
+            margin: 30px 0;
+            text-align: center;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+        }
+
+        .page-title:after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 5px;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 520px;
+            background: white;
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-container:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .form-header i {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .form-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .form-header p {
+            color: var(--gray);
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        label {
+            font-size: 15px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label i {
+            color: var(--primary);
+            width: 20px;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 18px;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            border-radius: 12px;
+            border: 2px solid var(--light-gray);
+            font-size: 16px;
+            transition: var(--transition);
+            background-color: var(--light);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        input:hover {
+            border-color: #b8c1ec;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 18px;
+            width: 100%;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: var(--transition);
+            margin-top: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            flex-direction: column;
+            gap: 10px;
         }
 
-        /* Container principal para o formulário */
-        .form-container {
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 16px;
             width: 100%;
-            max-width: 500px;
-            box-sizing: border-box;
-            margin-bottom: 20px;
-        }
-        
-        /* Estilo do título do formulário */
-        h1 {
-            color: #1a73e8;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 28px;
-        }
-
-        /* Container para cada campo do formulário (label + input) */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        /* Estilo das labels */
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        /* Estilo dos campos de input */
-        input[type="text"],
-        input[type="email"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        /* Efeito de foco nos inputs */
-        input:focus {
-            border-color: #1a73e8;
-            outline: none;
-            box-shadow: 0 0 5px rgba(26, 115, 232, 0.3);
-        }
-
-        /* Estilo para as mensagens de erro de validação */
-        .error-message {
-            color: #d93025;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-
-        /* Estilo do botão de salvar */
-        button[type="submit"] {
-            width: 100%;
-            padding: 15px;
-            background-color: #1a73e8;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 18px;
-            font-weight: bold;
+            border-radius: 12px;
             cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 10px;
-        }
-        
-        /* Efeito hover no botão */
-        button[type="submit"]:hover {
-            background-color: #155ab6;
-        }
-
-        /* Estilo do link para voltar */
-        .back-link {
-            text-align: center;
-            margin-top: 20px;
-            display: block;
-            color: #1a73e8;
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: var(--transition);
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
             text-decoration: none;
-            font-weight: 500;
         }
 
-        .back-link:hover {
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--gray);
+            font-size: 14px;
+            padding-top: 20px;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .form-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .form-footer a:hover {
             text-decoration: underline;
         }
 
-        /* Media Query para responsividade em telas menores */
+        .user-avatar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+            font-weight: 700;
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .avatar i {
+            font-size: 48px;
+        }
+
+        .avatar-edit {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: white;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            color: var(--primary);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-overlay p {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
         @media (max-width: 600px) {
             .form-container {
-                padding: 20px;
+                padding: 30px 20px;
+                margin: 0 10px;
             }
-            h1 {
-                font-size: 24px;
+            
+            .page-title {
+                font-size: 32px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                margin-bottom: 30px;
             }
         }
     </style>
+
 </head>
+
 <body>
+    <div class="header">
+        <a th:href="@{/usuarios}" class="logo">
+            <i class="fas fa-book-open"></i>
+            <span>SmartLibrary</span>
+        </a>
+        <a th:href="@{/usuarios}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Voltar para Lista
+        </a>
+    </div>
+
+    <h1 class="page-title" th:text="${usuario.id != null} ? 'Editar Usuário' : 'Cadastrar Novo Usuário'">
+        Cadastrar Novo Usuário
+    </h1>
+
     <div class="form-container">
-        <h1>Cadastro de Usuário</h1>
+        <div class="form-header">
+            <i class="fas fa-user-plus"></i>
+            <h2 th:text="${usuario.id != null} ? 'Editar Conta' : 'Criar Nova Conta'">Criar Nova Conta</h2>
+            <p th:text="${usuario.id != null} ? 'Edite os dados do usuário abaixo' : 'Preencha os dados abaixo para cadastrar um novo usuário'">
+                Preencha os dados abaixo para cadastrar um novo usuário
+            </p>
+        </div>
 
+        <div class="user-avatar">
+            <div class="avatar" id="avatar">
+                <i class="fas fa-user"></i>
+                <div class="avatar-edit">
+                    <i class="fas fa-camera"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORMULÁRIO CORRIGIDO PARA SPRING/THYMELEAF -->
         <form th:action="@{/usuarios}" th:object="${usuario}" method="post">
+            <!-- Campo hidden para o ID (importante para edição) -->
+            <input type="hidden" th:field="*{id}" />
+            
             <div class="form-group">
-                <label for="nome">Nome:</label>
-                <input type="text" id="nome" th:field="*{nome}" required maxlength="150"/>
-                <span class="error-message" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
+                <label for="nome">
+                    <i class="fas fa-user"></i>
+                    Nome completo
+                </label>
+                <div class="input-with-icon">
+                    <i class="fas fa-user"></i>
+                    <input type="text" th:field="*{nome}" id="nome" 
+                           placeholder="Digite o nome completo" 
+                           th:class="${#fields.hasErrors('nome')} ? 'error-field' : ''"
+                           required>
+                    <div th:if="${#fields.hasErrors('nome')}" class="error-message">
+                        <small th:errors="*{nome}"></small>
+                    </div>
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="email">E-mail:</label>
-                <input type="email" id="email" th:field="*{email}" required maxlength="100"/>
-                <span class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+                <label for="email">
+                    <i class="fas fa-envelope"></i>
+                    Email
+                </label>
+                <div class="input-with-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" th:field="*{email}" id="email" 
+                           placeholder="exemplo@email.com"
+                           th:class="${#fields.hasErrors('email')} ? 'error-field' : ''"
+                           required>
+                    <div th:if="${#fields.hasErrors('email')}" class="error-message">
+                        <small th:errors="*{email}"></small>
+                    </div>
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="telefone">Telefone:</label>
-                <input type="text" id="telefone" th:field="*{telefone}" maxlength="20"/>
-                <span class="error-message" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}"></span>
+                <label for="telefone">
+                    <i class="fas fa-phone"></i>
+                    Telefone
+                </label>
+                <div class="input-with-icon">
+                    <i class="fas fa-phone"></i>
+                    <input type="text" th:field="*{telefone}" id="telefone" 
+                           placeholder="(11) 99999-9999"
+                           required>
+                </div>
             </div>
 
-            <div class="form-group">
-                <button type="submit">Salvar</button>
-            </div>
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-save"></i>
+                <span th:text="${usuario.id != null} ? 'Atualizar Usuário' : 'Salvar Usuário'">
+                    Salvar Usuário
+                </span>
+            </button>
+
+            <a th:href="@{/usuarios}" class="btn-secondary">
+                <i class="fas fa-list"></i>
+                Ver Lista de Usuários
+            </a>
         </form>
 
-        <a class="back-link" th:href="@{/usuarios}">Voltar à lista</a>
     </div>
+
+    <script>
+        // Adicione estilos para erros
+        const style = document.createElement('style');
+        style.textContent = `
+            .error-field {
+                border-color: #ef476f !important;
+                box-shadow: 0 0 0 3px rgba(239, 71, 111, 0.2) !important;
+            }
+            .error-message {
+                color: #ef476f;
+                font-size: 14px;
+                margin-top: 5px;
+                font-weight: 600;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Adicionar máscara de telefone
+        document.getElementById('telefone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length > 10) {
+                value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
+            } else if (value.length > 6) {
+                value = value.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+            } else if (value.length > 2) {
+                value = value.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
+            } else if (value.length > 0) {
+                value = value.replace(/^(\d*)/, '($1');
+            }
+            
+            e.target.value = value;
+        });
+        
+        // Atualizar avatar com iniciais quando o nome é digitado
+        document.getElementById('nome').addEventListener('input', function(e) {
+            const name = e.target.value.trim();
+            if (name.length > 0) {
+                const initials = name.split(' ')
+                    .map(n => n[0])
+                    .join('')
+                    .toUpperCase()
+                    .substring(0, 2);
+                
+                const avatar = document.getElementById('avatar');
+                avatar.innerHTML = `<span style="font-size: 32px;">${initials}</span>
+                                   <div class="avatar-edit"><i class="fas fa-camera"></i></div>`;
+            }
+        });
+        
+        // Se estiver editando, inicializar avatar com as iniciais
+        window.addEventListener('load', () => {
+            const nomeInput = document.getElementById('nome');
+            if (nomeInput && nomeInput.value) {
+                const name = nomeInput.value.trim();
+                if (name.length > 0) {
+                    const initials = name.split(' ')
+                        .map(n => n[0])
+                        .join('')
+                        .toUpperCase()
+                        .substring(0, 2);
+                    
+                    const avatar = document.getElementById('avatar');
+                    avatar.innerHTML = `<span style="font-size: 32px;">${initials}</span>
+                                       <div class="avatar-edit"><i class="fas fa-camera"></i></div>`;
+                }
+            }
+        });
+    </script>
 </body>
 </html>
