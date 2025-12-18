@@ -7,10 +7,9 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.3.0</version>
-		<relativePath /> <!-- lookup parent from repository -->
-	</parent>
+		<relativePath /> </parent>
 	<groupId>br.edu.ifrn</groupId>
-	<artifactId>livros</artifactId> <!-- Mantido como livros -->
+	<artifactId>livros</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>livros</name>
     <description>Projeto Spring Boot livros</description>
@@ -36,6 +35,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
@@ -44,6 +48,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.thymeleaf.extras</groupId>
+			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
 		</dependency>
 
 		<dependency>
