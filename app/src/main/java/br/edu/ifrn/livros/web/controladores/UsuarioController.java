@@ -10,7 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Optional;
+import java.util.List;
 
 @Controller
 @RequestMapping("/usuarios")
@@ -20,62 +20,55 @@ public class UsuarioController {
     private UsuarioRepository usuarioRepository;
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("usuarios", usuarioRepository.findAll());
+    public String listar(@RequestParam(value = "busca", required = false) String busca, Model model) {
+        List<Usuario> usuarios;
+
+        if (busca != null && !busca.isEmpty()) {
+            // Se tiver busca, filtra pelos 3 campos
+            usuarios = usuarioRepository.findByNomeContainingIgnoreCaseOrEmailContainingIgnoreCaseOrTelefoneContainingIgnoreCase(busca, busca, busca);
+            model.addAttribute("termoBusca", busca); // Devolve o termo para o input não limpar
+        } else {
+            // Se não, traz tudo
+            usuarios = usuarioRepository.findAll();
+        }
+
+        model.addAttribute("usuarios", usuarios);
         return "Usuario/lista-usuario";
     }
 
     @GetMapping("/novo")
-    public String formulario(Model model) {
+    public String novo(Model model) {
         model.addAttribute("usuario", new Usuario());
         return "Usuario/formulario-usuario";
     }
 
-    // SALVAR NOVO OU EDITADO
-    @PostMapping
-    public String salvar(@Valid @ModelAttribute("usuario") Usuario usuario,
-                         BindingResult result,
-                         RedirectAttributes attributes) {
-
-        // valida email duplicado
-        Optional<Usuario> existente = usuarioRepository.findByEmail(usuario.getEmail());
-        if (existente.isPresent() && !existente.get().getId().equals(usuario.getId())) {
-            result.rejectValue("email", "erro.duplicado", "Já existe um usuário com este e-mail");
-        }
-
+    @PostMapping("/salvar")
+    public String salvar(@Valid Usuario usuario, BindingResult result, RedirectAttributes attr) {
         if (result.hasErrors()) {
             return "Usuario/formulario-usuario";
         }
-
+        
         usuarioRepository.save(usuario);
-        attributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso!");
+        attr.addFlashAttribute("mensagem", "Usuário salvo com sucesso!");
         return "redirect:/usuarios";
     }
 
-    // EDITAR
     @GetMapping("/editar/{id}")
-    public String editar(@PathVariable Long id, Model model, RedirectAttributes attributes) {
-        Optional<Usuario> usuario = usuarioRepository.findById(id);
-
-        if (usuario.isEmpty()) {
-            attributes.addFlashAttribute("mensagem", "Usuário não encontrado!");
-            return "redirect:/usuarios";
-        }
-
-        model.addAttribute("usuario", usuario.get());
+    public String editar(@PathVariable("id") Long id, Model model) {
+        Usuario usuario = usuarioRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("ID inválido: " + id));
+        
+        model.addAttribute("usuario", usuario);
         return "Usuario/formulario-usuario";
     }
 
-    // EXCLUIR
-    @GetMapping("/excluir/{id}")
-    public String excluir(@PathVariable Long id, RedirectAttributes attributes) {
-        if (usuarioRepository.existsById(id)) {
-            usuarioRepository.deleteById(id);
-            attributes.addFlashAttribute("mensagem", "Usuário excluído com sucesso!");
-        } else {
-            attributes.addFlashAttribute("mensagem", "Usuário não encontrado!");
-        }
-
+    @GetMapping("/deletar/{id}")
+    public String deletar(@PathVariable("id") Long id, RedirectAttributes attr) {
+        Usuario usuario = usuarioRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("ID inválido: " + id));
+            
+        usuarioRepository.delete(usuario);
+        attr.addFlashAttribute("mensagem", "Usuário excluído com sucesso!");
         return "redirect:/usuarios";
     }
 }

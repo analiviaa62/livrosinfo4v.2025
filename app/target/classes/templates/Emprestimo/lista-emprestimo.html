@@ -5,71 +5,97 @@
     <title>Empréstimos - SmartLibrary</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #4361ee; --secondary: #7209b7; --light: #f8f9fa; --dark: #212529; --radius: 12px; }
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 20px; }
-        .container { max-width: 1100px; margin: 0 auto; background: white; padding: 30px; border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        h1 { color: var(--primary); margin-bottom: 20px; }
-        .btn { padding: 8px 16px; border-radius: 8px; text-decoration: none; color: white; display: inline-block; font-weight: 600; border: none; cursor: pointer; }
-        .btn-primary { background: var(--primary); }
-        .btn-success { background: #10b981; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; color: var(--secondary); }
+        /* CSS PADRÃO (Igual às outras páginas) */
+        :root { --primary: #4361ee; --secondary: #7209b7; --light: #f8f9fa; --dark: #212529; --gray: #64748b; --radius: 16px; --shadow: 0 10px 40px -10px rgba(0,0,0,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; color: var(--dark); padding-bottom: 40px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
         
+        .navbar { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 15px 30px; border-radius: 24px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 40px; }
+        .nav-left { display: flex; align-items: center; gap: 40px; }
+        .brand { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .nav-links { display: flex; gap: 10px; }
+        .nav-item { color: var(--gray); text-decoration: none; font-weight: 600; padding: 8px 16px; border-radius: 12px; transition: all 0.3s; display: flex; align-items: center; gap: 8px; }
+        .nav-item:hover, .nav-item.active { color: var(--primary); background: #eff6ff; }
+        .btn-logout { background: #fee2e2; color: #ef4444; border: none; padding: 10px 20px; border-radius: 50px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
+        .btn-logout:hover { background: #fecaca; transform: translateY(-2px); }
+
+        .content-card { background: white; padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow); position: relative; overflow: hidden; animation: fadeIn 0.5s ease; }
+        .content-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, var(--primary), var(--secondary)); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9; }
+        .page-title { font-size: 28px; font-weight: 800; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        
+        .btn-add { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; text-decoration: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3); transition: 0.3s; }
+        .btn-add:hover { transform: translateY(-2px); }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; padding: 15px; color: var(--gray); font-weight: 700; text-transform: uppercase; font-size: 13px; background: #f8fafc; border-radius: 8px; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; }
+
         /* Badges de Status */
         .badge { padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; }
-        .badge-info { background: #e0f2fe; color: #0369a1; }     /* Em dia */
-        .badge-danger { background: #fee2e2; color: #991b1b; }   /* Atrasado */
-        .badge-success { background: #d1fae5; color: #065f46; }  /* Devolvido OK */
-        .badge-warning { background: #ffedd5; color: #9a3412; }  /* Devolvido com Atraso */
-
-        .navbar { margin-bottom: 20px; }
-        .navbar a { margin-right: 15px; color: var(--dark); text-decoration: none; font-weight: 600; }
-        .navbar a:hover { color: var(--primary); }
+        .badge-info { background: #e0f2fe; color: #0369a1; }     /* Azul: Em dia */
+        .badge-danger { background: #fee2e2; color: #991b1b; }   /* Vermelho: Atrasado (Não devolveu) */
+        .badge-success { background: #d1fae5; color: #065f46; }  /* Verde: Devolvido OK */
+        .badge-warning { background: #ffedd5; color: #9a3412; }  /* Laranja: Devolvido com Atraso */
+        
+        .btn-receive { background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px; transition: 0.2s; }
+        .btn-receive:hover { opacity: 0.9; transform: translateY(-1px); }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="navbar">
-            <a th:href="@{/}"><i class="fas fa-home"></i> Home</a>
-            <a th:href="@{/livros}">Livros</a>
-            <a th:href="@{/usuarios}">Usuários</a>
-            <span style="color: var(--primary);">Empréstimos</span>
+
+<div class="container">
+    
+    <nav class="navbar">
+        <div class="nav-left">
+            <a th:href="@{/}" class="brand"> <i class="fas fa-book-open"></i> SmartLibrary </a>
+            <div class="nav-links">
+                <a th:href="@{/}" class="nav-item"> <i class="fas fa-home"></i> Início </a>
+                <a th:href="@{/usuarios}" class="nav-item"> <i class="fas fa-users"></i> Usuários </a>
+                <a th:href="@{/livros}" class="nav-item"> <i class="fas fa-book"></i> Livros </a>
+                <a th:href="@{/emprestimos}" class="nav-item active"> <i class="fas fa-exchange-alt"></i> Empréstimos </a>
+            </div>
+        </div>
+        <form th:action="@{/logout}" method="post"> <button class="btn-logout"><i class="fas fa-sign-out-alt"></i> Encerrar Sessão</button> </form>
+    </nav>
+
+    <div class="content-card">
+        <div class="page-header">
+            <h1 class="page-title">Controle de Empréstimos</h1>
+            <a th:href="@{/emprestimos/novo}" class="btn-add"><i class="fas fa-plus"></i> Novo Empréstimo</a>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h1><i class="fas fa-exchange-alt"></i> Controle de Empréstimos</h1>
-            <a th:href="@{/emprestimos/novo}" class="btn btn-primary"><i class="fas fa-plus"></i> Novo Empréstimo</a>
+        <div th:if="${mensagem}" style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
+            <i class="fas fa-check-circle"></i> <span th:text="${mensagem}"></span>
         </div>
-
-        <div th:if="${mensagem}" style="background: #d1fae5; color: #065f46; padding: 10px; border-radius: 8px; margin: 10px 0;" th:text="${mensagem}"></div>
-        <div th:if="${erro}" style="background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 8px; margin: 10px 0;" th:text="${erro}"></div>
 
         <table>
             <thead>
                 <tr>
                     <th>Livro</th>
                     <th>Usuário</th>
-                    <th>Data Empréstimo</th>
-                    <th>Prazo Limite</th> <th>Status</th>
-                    <th>Ações</th>
+                    <th>Saída</th>
+                    <th>Prazo</th>
+                    <th>Status</th>
+                    <th>Ação</th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="emprestimo : ${emprestimos}">
-                    <td th:text="${emprestimo.livro.titulo}">Título</td>
-                    <td th:text="${emprestimo.usuario.nome}">Nome</td>
+                    <td style="font-weight: 600;" th:text="${emprestimo.livro.titulo}">Harry Potter</td>
+                    <td th:text="${emprestimo.usuario.nome}">Ana</td>
                     <td th:text="${#temporals.format(emprestimo.dataEmprestimo, 'dd/MM/yyyy')}"></td>
-                    
-                    <td th:text="${#temporals.format(emprestimo.dataPrazo, 'dd/MM/yyyy')}" style="font-weight: bold;"></td>
-                    
+                    <td th:text="${#temporals.format(emprestimo.dataPrazo, 'dd/MM/yyyy')}" style="font-weight: 600;"></td>
                     <td>
                         <div th:if="${emprestimo.dataDevolucao == null}">
                             <span th:if="${hoje.isAfter(emprestimo.dataPrazo)}" class="badge badge-danger">
                                 <i class="fas fa-exclamation-circle"></i> Atrasado
                             </span>
                             <span th:if="${!hoje.isAfter(emprestimo.dataPrazo)}" class="badge badge-info">
-                                <i class="fas fa-clock"></i> Em andamento
+                                <i class="fas fa-clock"></i> Em dia
                             </span>
                         </div>
 
@@ -80,25 +106,24 @@
                             <span th:if="${!emprestimo.dataDevolucao.isAfter(emprestimo.dataPrazo)}" class="badge badge-success">
                                 <i class="fas fa-check-circle"></i> Devolvido
                             </span>
-                            <div style="font-size: 11px; color: #666; margin-top: 2px;">
-                                Em: <span th:text="${#temporals.format(emprestimo.dataDevolucao, 'dd/MM/yyyy')}"></span>
-                            </div>
                         </div>
                     </td>
-
                     <td>
-                        <form th:if="${emprestimo.dataDevolucao == null}" th:action="@{/emprestimos/{id}/devolver(id=${emprestimo.id})}" method="post" style="display:inline;">
-                            <button type="submit" class="btn btn-success" onclick="return confirm('Confirmar a devolução deste livro?')">
-                                <i class="fas fa-check"></i> Receber
-                            </button>
+                        <form th:if="${emprestimo.dataDevolucao == null}" th:action="@{/emprestimos/{id}/devolver(id=${emprestimo.id})}" method="post">
+                            <button type="submit" class="btn-receive"><i class="fas fa-check"></i> Receber</button>
                         </form>
                     </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(emprestimos)}">
-                    <td colspan="6" style="text-align: center; color: #777; padding: 20px;">Nenhum empréstimo registrado.</td>
+                    <td colspan="6" style="text-align: center; padding: 40px; color: #94a3b8;">
+                        <i class="fas fa-inbox" style="font-size: 40px; margin-bottom: 10px; display: block;"></i>
+                        Nenhum empréstimo ativo.
+                    </td>
                 </tr>
             </tbody>
         </table>
     </div>
+</div>
+
 </body>
 </html>
