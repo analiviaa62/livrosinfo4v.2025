@@ -1,4 +1,3 @@
-br\edu\ifrn\livros\OlaSpringBoot.class
 br\edu\ifrn\livros\web\controladores\LivroController.class
 br\edu\ifrn\livros\persistencia\repositorio\UsuarioRepository.class
 br\edu\ifrn\livros\config\SecurityConfig.class
@@ -7,6 +6,7 @@ br\edu\ifrn\livros\persistencia\modelo\GeneroLivro.class
 br\edu\ifrn\livros\web\controladores\UsuarioController.class
 br\edu\ifrn\livros\persistencia\modelo\Livro.class
 br\edu\ifrn\livros\Application.class
+br\edu\ifrn\livros\web\controladores\HomeController.class
 br\edu\ifrn\livros\persistencia\modelo\Livro$LivroBuilder.class
 br\edu\ifrn\livros\persistencia\repositorio\LivroRepository.class
 br\edu\ifrn\livros\persistencia\modelo\Usuario.class
