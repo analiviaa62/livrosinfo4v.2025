@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Empréstimos - SmartLibrary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #4361ee; --secondary: #7209b7; --light: #f8f9fa; --dark: #212529; --radius: 12px; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; background: white; padding: 30px; border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h1 { color: var(--primary); margin-bottom: 20px; }
+        .btn { padding: 8px 16px; border-radius: 8px; text-decoration: none; color: white; display: inline-block; font-weight: 600; border: none; cursor: pointer; }
+        .btn-primary { background: var(--primary); }
+        .btn-success { background: #10b981; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; color: var(--secondary); }
+        
+        /* Badges de Status */
+        .badge { padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; }
+        .badge-info { background: #e0f2fe; color: #0369a1; }     /* Em dia */
+        .badge-danger { background: #fee2e2; color: #991b1b; }   /* Atrasado */
+        .badge-success { background: #d1fae5; color: #065f46; }  /* Devolvido OK */
+        .badge-warning { background: #ffedd5; color: #9a3412; }  /* Devolvido com Atraso */
+
+        .navbar { margin-bottom: 20px; }
+        .navbar a { margin-right: 15px; color: var(--dark); text-decoration: none; font-weight: 600; }
+        .navbar a:hover { color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a th:href="@{/}"><i class="fas fa-home"></i> Home</a>
+            <a th:href="@{/livros}">Livros</a>
+            <a th:href="@{/usuarios}">Usuários</a>
+            <span style="color: var(--primary);">Empréstimos</span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1><i class="fas fa-exchange-alt"></i> Controle de Empréstimos</h1>
+            <a th:href="@{/emprestimos/novo}" class="btn btn-primary"><i class="fas fa-plus"></i> Novo Empréstimo</a>
+        </div>
+
+        <div th:if="${mensagem}" style="background: #d1fae5; color: #065f46; padding: 10px; border-radius: 8px; margin: 10px 0;" th:text="${mensagem}"></div>
+        <div th:if="${erro}" style="background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 8px; margin: 10px 0;" th:text="${erro}"></div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Livro</th>
+                    <th>Usuário</th>
+                    <th>Data Empréstimo</th>
+                    <th>Prazo Limite</th> <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="emprestimo : ${emprestimos}">
+                    <td th:text="${emprestimo.livro.titulo}">Título</td>
+                    <td th:text="${emprestimo.usuario.nome}">Nome</td>
+                    <td th:text="${#temporals.format(emprestimo.dataEmprestimo, 'dd/MM/yyyy')}"></td>
+                    
+                    <td th:text="${#temporals.format(emprestimo.dataPrazo, 'dd/MM/yyyy')}" style="font-weight: bold;"></td>
+                    
+                    <td>
+                        <div th:if="${emprestimo.dataDevolucao == null}">
+                            <span th:if="${hoje.isAfter(emprestimo.dataPrazo)}" class="badge badge-danger">
+                                <i class="fas fa-exclamation-circle"></i> Atrasado
+                            </span>
+                            <span th:if="${!hoje.isAfter(emprestimo.dataPrazo)}" class="badge badge-info">
+                                <i class="fas fa-clock"></i> Em andamento
+                            </span>
+                        </div>
+
+                        <div th:if="${emprestimo.dataDevolucao != null}">
+                            <span th:if="${emprestimo.dataDevolucao.isAfter(emprestimo.dataPrazo)}" class="badge badge-warning">
+                                <i class="fas fa-history"></i> Devolvido com Atraso
+                            </span>
+                            <span th:if="${!emprestimo.dataDevolucao.isAfter(emprestimo.dataPrazo)}" class="badge badge-success">
+                                <i class="fas fa-check-circle"></i> Devolvido
+                            </span>
+                            <div style="font-size: 11px; color: #666; margin-top: 2px;">
+                                Em: <span th:text="${#temporals.format(emprestimo.dataDevolucao, 'dd/MM/yyyy')}"></span>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td>
+                        <form th:if="${emprestimo.dataDevolucao == null}" th:action="@{/emprestimos/{id}/devolver(id=${emprestimo.id})}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-success" onclick="return confirm('Confirmar a devolução deste livro?')">
+                                <i class="fas fa-check"></i> Receber
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(emprestimos)}">
+                    <td colspan="6" style="text-align: center; color: #777; padding: 20px;">Nenhum empréstimo registrado.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

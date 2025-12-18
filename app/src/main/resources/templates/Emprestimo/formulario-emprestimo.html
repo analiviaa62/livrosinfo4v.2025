@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Novo Empréstimo - SmartLibrary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #4361ee; --secondary: #7209b7; --radius: 12px; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .card { background: white; padding: 40px; border-radius: var(--radius); width: 100%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h2 { color: var(--primary); margin-bottom: 20px; text-align: center; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+        select, input { width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; margin-bottom: 20px; font-size: 16px; }
+        select:focus, input:focus { border-color: var(--primary); outline: none; }
+        .btn { width: 100%; padding: 14px; background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn:hover { opacity: 0.9; }
+        .btn-back { background: transparent; color: #666; margin-top: 10px; display: block; text-align: center; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2><i class="fas fa-book-reader"></i> Novo Empréstimo</h2>
+        
+        <form th:action="@{/emprestimos/salvar}" th:object="${emprestimo}" method="post">
+            
+            <label for="usuario">Usuário</label>
+            <select id="usuario" th:field="*{usuario}" required>
+                <option value="">Selecione um usuário...</option>
+                <option th:each="u : ${usuarios}" th:value="${u.id}" th:text="${u.nome}"></option>
+            </select>
+
+            <label for="livro">Livro</label>
+            <select id="livro" th:field="*{livro}" required>
+                <option value="">Selecione um livro...</option>
+                <option th:each="l : ${livros}" 
+                        th:if="${l.quantidadeDisponivel > 0}"
+                        th:value="${l.id}" 
+                        th:text="${l.titulo + ' (Disp: ' + l.quantidadeDisponivel + ')'}">
+                </option>
+            </select>
+
+            <label for="dataEmprestimo">Data do Empréstimo</label>
+            <input type="date" id="dataEmprestimo" th:field="*{dataEmprestimo}" required>
+
+            <button type="submit" class="btn">Confirmar Empréstimo</button>
+            <a th:href="@{/emprestimos}" class="btn-back">Cancelar</a>
+        </form>
+    </div>
+    
+    <script>
+        // Define a data de hoje automaticamente
+        document.getElementById('dataEmprestimo').valueAsDate = new Date();
+    </script>
+</body>
+</html>

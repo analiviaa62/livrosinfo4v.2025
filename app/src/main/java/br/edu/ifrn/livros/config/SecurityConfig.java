@@ -24,7 +24,7 @@ public class SecurityConfig {
             )
             .formLogin((form) -> form
                 .loginPage("/login") // Nossa página personalizada
-                .defaultSuccessUrl("/livros", true) // Redireciona para livros ao entrar
+                .defaultSuccessUrl("/", true) // ALTERADO AQUI: Redireciona para a Home (/)
                 .permitAll()
             )
             .logout((logout) -> logout
