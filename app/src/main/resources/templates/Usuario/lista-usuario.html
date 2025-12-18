@@ -2,272 +2,82 @@
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Usuários - SmartLibrary</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* === ESTILO PADRÃO (Igual à Home) === */
-        :root {
-            --primary: #4361ee;
-            --secondary: #7209b7;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #64748b;
-            --radius: 20px;
-            --shadow: 0 10px 40px -10px rgba(0,0,0,0.1);
-        }
-
+        /* === ESTILO PADRÃO COM HOVER EFFECT === */
+        :root { --primary: #4361ee; --secondary: #7209b7; --light: #f8f9fa; --dark: #212529; --gray: #64748b; --radius: 20px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            color: var(--dark);
-            padding-bottom: 40px;
-        }
-
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; color: var(--dark); padding-bottom: 40px; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-        /* NAVBAR FLUTUANTE (Igual à Home) */
-        .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 15px 30px;
-            border-radius: 24px;
-            margin: 20px 0 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        }
-
+        /* Navbar com Hover */
+        .navbar { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 15px 30px; border-radius: 24px; margin: 20px 0 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
         .nav-left { display: flex; align-items: center; gap: 40px; }
-        
-        .brand {
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--primary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        .brand { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; color: var(--primary); text-decoration: none; }
         .nav-links { display: flex; gap: 10px; }
+        
+        .nav-item { color: var(--gray); text-decoration: none; font-weight: 600; padding: 8px 16px; border-radius: 12px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; align-items: center; gap: 8px; }
+        /* EFEITO DE ZOOM */
+        .nav-item:hover, .nav-item.active { color: var(--primary); background: #eff6ff; transform: scale(1.1); box-shadow: 0 5px 15px rgba(67, 97, 238, 0.15); z-index: 1; }
 
-        .nav-item {
-            color: var(--gray);
-            text-decoration: none;
-            font-weight: 600;
-            padding: 8px 16px;
-            border-radius: 12px;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .btn-logout { background: #fee2e2; color: #ef4444; border: none; padding: 10px 20px; border-radius: 50px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .btn-logout:hover { background: #fecaca; transform: translateY(-2px) scale(1.05); box-shadow: 0 5px 15px rgba(239, 68, 68, 0.2); }
 
-        .nav-item:hover, .nav-item.active {
-            color: var(--primary);
-            background: #eff6ff;
-        }
-
-        .btn-logout {
-            background: #fee2e2;
-            color: #ef4444;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            transition: 0.3s;
-        }
-        .btn-logout:hover { background: #fecaca; transform: translateY(-2px); }
-
-        /* CONTEÚDO */
-        .content-card {
-            background: white;
-            padding: 30px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            position: relative;
-            overflow: hidden;
-            animation: slideUp 0.5s ease;
-        }
-
-        .content-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 6px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-        }
-
+        .content-card { background: white; padding: 30px; border-radius: var(--radius); box-shadow: 0 15px 35px rgba(0,0,0,0.08); position: relative; overflow: hidden; animation: slideUp 0.5s ease; }
+        .content-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: linear-gradient(90deg, var(--primary), var(--secondary)); }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #f1f5f9;
-        }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9; }
+        .page-title { font-size: 28px; font-weight: 800; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        
+        .btn-add { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; text-decoration: none; padding: 10px 24px; border-radius: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3); transition: 0.3s; }
+        .btn-add:hover { transform: translateY(-2px); }
 
-        .page-title {
-            font-size: 28px;
-            font-weight: 800;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            display: inline-block;
-        }
+        .search-container { margin-bottom: 25px; display: flex; gap: 10px; }
+        .search-box { position: relative; flex: 1; }
+        .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--gray); }
+        .search-input { width: 100%; padding: 12px 15px 12px 45px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; background: #f8fafc; outline: none; transition: 0.3s; box-sizing: border-box; }
+        .search-input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1); }
 
-        .btn-add {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            color: white;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
-            transition: 0.3s;
-        }
-        .btn-add:hover { transform: translateY(-3px); }
+        .btn-search { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; padding: 0 25px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .btn-search:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3); }
+        .btn-clear { background: #fee2e2; color: #ef4444; text-decoration: none; padding: 0 20px; border-radius: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .btn-clear:hover { background: #fecaca; }
 
-        /* BARRA DE BUSCA */
-        .search-container {
-            margin-bottom: 25px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .search-box {
-            position: relative;
-            flex: 1;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 15px 12px 45px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 15px;
-            background: #f8fafc;
-            color: var(--dark);
-            outline: none;
-            transition: 0.3s;
-            box-sizing: border-box;
-        }
-
-        .search-input:focus {
-            border-color: var(--primary);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
-        }
-
-        /* CORRIGIDO: Botão Buscar Colorido */
-        .btn-search {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            padding: 0 25px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .btn-search:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
-        }
-
-        /* TABELA */
         table { width: 100%; border-collapse: separate; border-spacing: 0 10px; margin-top: -10px; }
-        
         th { text-align: left; padding: 15px; color: var(--gray); font-weight: 700; font-size: 13px; text-transform: uppercase; }
-        
         td { background: #f8fafc; padding: 15px; vertical-align: middle; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
         td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; border-left: 1px solid #f1f5f9; }
         td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; border-right: 1px solid #f1f5f9; }
-        
-        tr:hover td { background: #eff6ff; border-color: #dbeafe; transform: scale(1.002); transition: 0.2s; }
+        tr:hover td { background: #eff6ff; border-color: #dbeafe; transition: 0.2s; }
 
         .actions-cell { width: 1%; white-space: nowrap; }
-        .actions-container { display: flex; gap: 8px; }
-
-        .btn-action {
-            width: 35px; height: 35px; border-radius: 8px;
-            display: inline-flex; align-items: center; justify-content: center;
-            color: white; text-decoration: none; border: none; transition: 0.2s;
-        }
-        .btn-edit { background: #3b82f6; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); }
-        .btn-edit:hover { background: #2563eb; transform: translateY(-2px); }
-        .btn-delete { background: #ef4444; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
-        .btn-delete:hover { background: #dc2626; transform: translateY(-2px); }
+        .actions-container { display: flex; gap: 8px; justify-content: flex-start; }
+        .btn-action { padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: 0.2s; border: 1px solid transparent; }
+        .btn-edit { background: #e0f2fe; color: #0284c7; }
+        .btn-edit:hover { background: #bae6fd; transform: translateY(-2px); }
+        .btn-delete { background: #fee2e2; color: #dc2626; }
+        .btn-delete:hover { background: #fecaca; transform: translateY(-2px); }
 
         .user-info { display: flex; align-items: center; gap: 12px; }
-        .user-avatar {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: linear-gradient(135deg, #e0e7ff 0%, #eff6ff 100%);
-            color: var(--primary);
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 16px;
-        }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #e0e7ff 0%, #eff6ff 100%); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    
     <nav class="navbar">
         <div class="nav-left">
-            <a th:href="@{/}" class="brand">
-                <i class="fas fa-book-open"></i> SmartLibrary
-            </a>
-            
+            <a th:href="@{/}" class="brand"> <i class="fas fa-book-open"></i> SmartLibrary </a>
             <div class="nav-links">
-                <a th:href="@{/}" class="nav-item">
-                    <i class="fas fa-home"></i> Início
-                </a>
-                <a th:href="@{/usuarios}" class="nav-item active">
-                    <i class="fas fa-users"></i> Usuários
-                </a>
-                <a th:href="@{/livros}" class="nav-item">
-                    <i class="fas fa-book"></i> Livros
-                </a>
-                <a th:href="@{/emprestimos}" class="nav-item">
-                    <i class="fas fa-exchange-alt"></i> Empréstimos
-                </a>
+                <a th:href="@{/}" class="nav-item"> <i class="fas fa-home"></i> Início </a>
+                <a th:href="@{/usuarios}" class="nav-item active"> <i class="fas fa-users"></i> Usuários </a>
+                <a th:href="@{/livros}" class="nav-item"> <i class="fas fa-book"></i> Livros </a>
+                <a th:href="@{/emprestimos}" class="nav-item"> <i class="fas fa-exchange-alt"></i> Empréstimos </a>
             </div>
         </div>
-
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="btn-logout">
-                <i class="fas fa-sign-out-alt"></i> Encerrar Sessão
-            </button>
-        </form>
+        <form th:action="@{/logout}" method="post"> <button class="btn-logout"><i class="fas fa-sign-out-alt"></i> Encerrar Sessão</button> </form>
     </nav>
 
     <div class="content-card">
@@ -276,19 +86,16 @@
                 <h1 class="page-title">Usuários Cadastrados</h1>
                 <p style="color: var(--gray); margin-top: 5px;">Gerencie os leitores do sistema.</p>
             </div>
-            <a th:href="@{/usuarios/novo}" class="btn-add">
-                <i class="fas fa-user-plus"></i> Novo Usuário
-            </a>
+            <a th:href="@{/usuarios/novo}" class="btn-add"><i class="fas fa-user-plus"></i> Novo Usuário</a>
         </div>
 
         <form th:action="@{/usuarios}" method="get" class="search-container">
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" name="busca" th:value="${termoBusca}" 
-                       class="search-input" placeholder="Buscar por nome, email ou telefone...">
+                <input type="text" name="busca" th:value="${termoBusca}" class="search-input" placeholder="Buscar por nome, email ou telefone...">
             </div>
-            <button type="submit" class="btn-search">Buscar</button>
-            <a th:if="${termoBusca}" th:href="@{/usuarios}" class="btn-search" style="background: #ef4444; display:flex; align-items:center; text-decoration:none;">Limpar</a>
+            <button type="submit" class="btn-search"><i class="fas fa-search"></i> Buscar</button>
+            <a th:if="${termoBusca}" th:href="@{/usuarios}" class="btn-clear" title="Limpar"><i class="fas fa-times"></i></a>
         </form>
 
         <div th:if="${mensagem}" style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
@@ -315,24 +122,17 @@
                         </td>
                         <td th:text="${usuario.email}" style="color: var(--gray);">Email</td>
                         <td th:text="${usuario.telefone}" style="color: var(--gray);">Telefone</td>
-                        
                         <td class="actions-cell">
                             <div class="actions-container">
-                                <a th:href="@{/usuarios/editar/{id}(id=${usuario.id})}" class="btn-action btn-edit" title="Editar">
-                                    <i class="fas fa-pen"></i>
-                                </a>
-                                <a th:href="@{/usuarios/deletar/{id}(id=${usuario.id})}" class="btn-action btn-delete" 
-                                   onclick="return confirm('Tem certeza que deseja excluir este usuário?')" title="Excluir">
-                                    <i class="fas fa-trash"></i>
-                                </a>
+                                <a th:href="@{/usuarios/editar/{id}(id=${usuario.id})}" class="btn-action btn-edit" title="Editar"><i class="fas fa-pen"></i> Editar</a>
+                                <a th:href="@{/usuarios/deletar/{id}(id=${usuario.id})}" class="btn-action btn-delete" onclick="return confirm('Tem certeza que deseja excluir este usuário?')" title="Excluir"><i class="fas fa-trash"></i> Excluir</a>
                             </div>
                         </td>
                     </tr>
-                    
                     <tr th:if="${#lists.isEmpty(usuarios)}">
                         <td colspan="4" style="text-align: center; padding: 40px; color: var(--gray);">
                             <i class="fas fa-users-slash" style="font-size: 40px; margin-bottom: 15px; color: #cbd5e1; display:block;"></i>
-                            <span th:if="${termoBusca}">Nenhum usuário encontrado para "<b><span th:text="${termoBusca}"></span></b>".</span>
+                            <span th:if="${termoBusca}">Nenhum usuário encontrado.</span>
                             <span th:unless="${termoBusca}">Nenhum usuário cadastrado.</span>
                         </td>
                     </tr>

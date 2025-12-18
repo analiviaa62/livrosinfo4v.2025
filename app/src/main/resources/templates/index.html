@@ -6,31 +6,53 @@
     <title>Dashboard - SmartLibrary</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* === VARIÁVEIS DE CORES (O Segredo do Modo Escuro) === */
         :root {
+            /* Cores da Marca (Fixas) */
             --primary: #4361ee;
             --secondary: #7209b7;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #64748b;
             --radius: 20px;
+
+            /* Cores Dinâmicas (Mudam no Dark Mode) */
+            --bg-body: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --bg-card: white;
+            --bg-nav: rgba(255, 255, 255, 0.95);
+            --text-main: #212529;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
             --shadow: 0 10px 40px -10px rgba(0,0,0,0.1);
+            --hover-item: #eff6ff;
+            --input-bg: #f8fafc;
+        }
+
+        /* CONFIGURAÇÃO DO TEMA ESCURO */
+        [data-theme="dark"] {
+            --bg-body: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); /* Azul Escuro Profundo */
+            --bg-card: #1e293b; /* Cinza Azulado Escuro */
+            --bg-nav: rgba(30, 41, 59, 0.95); /* Vidro Escuro */
+            --text-main: #f1f5f9; /* Branco Suave */
+            --text-muted: #94a3b8; /* Cinza Claro */
+            --border-color: #334155;
+            --shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+            --hover-item: #334155;
+            --input-bg: #0f172a;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', sans-serif;
-            /* Fundo padrão igual às outras páginas */
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: var(--bg-body);
             min-height: 100vh;
-            color: var(--dark);
+            color: var(--text-main);
+            transition: background 0.5s ease; /* Transição suave ao trocar o tema */
         }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-        /* --- NAVBAR MODERNA --- */
+        /* --- NAVBAR --- */
         .navbar {
-            background: rgba(255, 255, 255, 0.9);
+            background: var(--bg-nav);
             backdrop-filter: blur(10px);
             padding: 15px 30px;
             border-radius: 24px;
@@ -38,205 +60,165 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
         }
 
         .nav-left { display: flex; align-items: center; gap: 40px; }
 
         .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--primary);
+            display: flex; align-items: center; gap: 10px;
+            font-size: 22px; font-weight: 800; color: var(--primary);
             text-decoration: none;
         }
 
         .nav-links { display: flex; gap: 10px; }
 
         .nav-item {
-            color: var(--gray);
+            color: var(--text-muted);
             text-decoration: none;
             font-weight: 600;
             padding: 8px 16px;
             border-radius: 12px;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex; align-items: center; gap: 8px;
         }
 
         .nav-item:hover, .nav-item.active {
             color: var(--primary);
-            background: #eff6ff;
+            background: var(--hover-item);
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.15);
+            z-index: 1;
         }
 
-        /* Botão Sair Estilizado */
-        .btn-logout {
-            background: #fee2e2;
-            color: #ef4444;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 14px;
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+
+        /* Botão de Tema (Sol/Lua) */
+        .btn-theme {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--text-muted);
+            width: 40px; height: 40px;
+            border-radius: 50%;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-            text-decoration: none;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+        .btn-theme:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: rotate(15deg);
         }
 
+        .btn-logout {
+            background: #fee2e2; color: #ef4444; border: none;
+            padding: 10px 20px; border-radius: 50px;
+            font-weight: 700; font-size: 14px;
+            cursor: pointer; display: flex; align-items: center; gap: 8px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
         .btn-logout:hover {
             background: #fecaca;
-            transform: translateY(-2px);
+            transform: translateY(-2px) scale(1.05);
             box-shadow: 0 5px 15px rgba(239, 68, 68, 0.2);
         }
 
         /* --- CONTEÚDO --- */
-        .welcome-area {
-            text-align: center;
-            padding: 60px 0 40px;
-        }
+        .welcome-area { text-align: center; padding: 60px 0 40px; }
 
         .welcome-title { 
-            font-size: 38px; 
-            font-weight: 800; 
-            margin-bottom: 10px;
-            /* Título colorido igual às outras páginas */
+            font-size: 38px; font-weight: 800; margin-bottom: 10px;
             background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            -webkit-background-clip: text; background-clip: text; color: transparent;
             display: inline-block;
         }
 
-        .welcome-subtitle { 
-            font-size: 18px; 
-            color: var(--gray);
-            font-weight: 400; 
-        }
+        .welcome-subtitle { font-size: 18px; color: var(--text-muted); font-weight: 400; }
 
-        /* --- CARDS DE ESTATÍSTICA (VISUAL APENAS) --- */
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 50px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px; margin-bottom: 50px;
         }
 
         .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: var(--radius);
+            background: var(--bg-card);
+            padding: 25px; border-radius: var(--radius);
             box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            position: relative;
-            overflow: hidden;
-            /* Não clicável */
-            cursor: default; 
+            display: flex; align-items: center; gap: 20px;
+            position: relative; overflow: hidden;
+            transition: transform 0.3s, background 0.3s;
+            border: 1px solid var(--border-color);
         }
+        .stat-card:hover { transform: translateY(-5px); }
 
-        .stat-card::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 5px;
-            height: 100%;
-        }
-
+        .stat-card::after { content: ''; position: absolute; right: 0; top: 0; width: 5px; height: 100%; }
         .stat-blue::after { background: var(--primary); }
         .stat-purple::after { background: var(--secondary); }
         .stat-pink::after { background: #ec4899; }
 
         .icon-box {
-            width: 60px;
-            height: 60px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            flex-shrink: 0;
+            width: 60px; height: 60px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; flex-shrink: 0;
         }
 
         .bg-blue-light { background: #eff6ff; color: var(--primary); }
         .bg-purple-light { background: #f3e8ff; color: var(--secondary); }
         .bg-pink-light { background: #fdf2f8; color: #ec4899; }
-
-        .stat-info h3 { font-size: 14px; color: var(--gray); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .stat-info .value { font-size: 32px; font-weight: 800; color: var(--dark); line-height: 1.2; }
-
-        /* --- ACESSO RÁPIDO MELHORADO --- */
-        .section-header {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--dark);
-        }
         
+        /* Ajuste de ícones no modo escuro para não ficarem "estourados" */
+        [data-theme="dark"] .bg-blue-light { background: rgba(67, 97, 238, 0.2); }
+        [data-theme="dark"] .bg-purple-light { background: rgba(114, 9, 183, 0.2); }
+        [data-theme="dark"] .bg-pink-light { background: rgba(236, 72, 153, 0.2); }
+
+        .stat-info h3 { font-size: 14px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-info .value { font-size: 32px; font-weight: 800; color: var(--text-main); line-height: 1.2; }
+
+        .section-header { font-size: 20px; font-weight: 700; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
         .section-header i { color: var(--primary); }
 
         .actions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            padding-bottom: 40px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px; padding-bottom: 40px;
         }
 
         .action-card {
-            background: white;
-            padding: 30px 25px;
-            border-radius: var(--radius);
-            text-decoration: none;
-            color: var(--dark);
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 1px solid transparent;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            background: var(--bg-card);
+            padding: 30px 25px; border-radius: var(--radius);
+            text-decoration: none; color: var(--text-main);
+            text-align: center; transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
         }
 
         .action-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            border-color: rgba(67, 97, 238, 0.2);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border-color: rgba(67, 97, 238, 0.5);
         }
 
         .action-icon {
-            width: 70px;
-            height: 70px;
-            margin: 0 auto 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: white;
+            width: 70px; height: 70px; margin: 0 auto 20px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 28px; color: white;
             background: linear-gradient(135deg, #e0e7ff 0%, #eff6ff 100%);
             color: var(--primary);
             box-shadow: 0 10px 20px rgba(67, 97, 238, 0.15);
             transition: all 0.3s;
         }
+        
+        [data-theme="dark"] .action-icon { background: rgba(67, 97, 238, 0.15); }
 
         .action-card:hover .action-icon {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            transform: scale(1.1) rotate(5deg);
+            color: white; transform: scale(1.1) rotate(5deg);
         }
 
         .action-title { font-size: 18px; font-weight: 700; margin-bottom: 5px; }
-        .action-desc { font-size: 14px; color: var(--gray); }
-
-        @media (max-width: 768px) {
-            .navbar { flex-direction: column; gap: 15px; border-radius: 0; margin-top: 0; }
-            .nav-left { flex-direction: column; gap: 15px; }
-            .nav-links { flex-wrap: wrap; justify-content: center; }
-        }
+        .action-desc { font-size: 14px; color: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -245,31 +227,25 @@
     
     <nav class="navbar">
         <div class="nav-left">
-            <a th:href="@{/}" class="brand">
-                <i class="fas fa-book-open"></i> SmartLibrary
-            </a>
+            <a th:href="@{/}" class="brand"> <i class="fas fa-book-open"></i> SmartLibrary </a>
             
             <div class="nav-links">
-                <a th:href="@{/}" class="nav-item active">
-                    <i class="fas fa-home"></i> Início
-                </a>
-                <a th:href="@{/usuarios}" class="nav-item">
-                    <i class="fas fa-users"></i> Usuários
-                </a>
-                <a th:href="@{/livros}" class="nav-item">
-                    <i class="fas fa-book"></i> Livros
-                </a>
-                <a th:href="@{/emprestimos}" class="nav-item">
-                    <i class="fas fa-exchange-alt"></i> Empréstimos
-                </a>
+                <a th:href="@{/}" class="nav-item active"> <i class="fas fa-home"></i> Início </a>
+                <a th:href="@{/usuarios}" class="nav-item"> <i class="fas fa-users"></i> Usuários </a>
+                <a th:href="@{/livros}" class="nav-item"> <i class="fas fa-book"></i> Livros </a>
+                <a th:href="@{/emprestimos}" class="nav-item"> <i class="fas fa-exchange-alt"></i> Empréstimos </a>
             </div>
         </div>
 
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="btn-logout">
-                <i class="fas fa-sign-out-alt"></i> Encerrar Sessão
+        <div class="nav-right">
+            <button class="btn-theme" onclick="toggleTheme()" title="Alternar Tema">
+                <i class="fas fa-moon"></i>
             </button>
-        </form>
+
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Encerrar Sessão</button>
+            </form>
+        </div>
     </nav>
 
     <div class="welcome-area">
@@ -279,9 +255,7 @@
 
     <div class="stats-grid">
         <div class="stat-card stat-blue">
-            <div class="icon-box bg-blue-light">
-                <i class="fas fa-users"></i>
-            </div>
+            <div class="icon-box bg-blue-light"><i class="fas fa-users"></i></div>
             <div class="stat-info">
                 <h3>Usuários Cadastrados</h3>
                 <div class="value" th:text="${totalUsuarios}">0</div>
@@ -289,9 +263,7 @@
         </div>
 
         <div class="stat-card stat-purple">
-            <div class="icon-box bg-purple-light">
-                <i class="fas fa-book"></i>
-            </div>
+            <div class="icon-box bg-purple-light"><i class="fas fa-book"></i></div>
             <div class="stat-info">
                 <h3>Livros no Acervo</h3>
                 <div class="value" th:text="${totalLivros}">0</div>
@@ -299,54 +271,83 @@
         </div>
 
         <div class="stat-card stat-pink">
-            <div class="icon-box bg-pink-light">
-                <i class="fas fa-exchange-alt"></i>
-            </div>
+            <div class="icon-box bg-pink-light"><i class="fas fa-exchange-alt"></i></div>
             <div class="stat-info">
                 <h3>Empréstimos Ativos</h3>
-                <div class="value">--</div> </div>
+                <div class="value">--</div> 
+            </div>
         </div>
     </div>
 
-    <div class="section-header">
-        <i class="fas fa-rocket"></i> Ações Rápidas
-    </div>
+    <div class="section-header"> <i class="fas fa-rocket"></i> Ações Rápidas </div>
 
     <div class="actions-grid">
         <a th:href="@{/livros/novo}" class="action-card">
-            <div class="action-icon">
-                <i class="fas fa-plus"></i>
-            </div>
+            <div class="action-icon"><i class="fas fa-plus"></i></div>
             <div class="action-title">Novo Livro</div>
             <div class="action-desc">Adicionar livro ao acervo</div>
         </a>
 
         <a th:href="@{/usuarios/novo}" class="action-card">
-            <div class="action-icon">
-                <i class="fas fa-user-plus"></i>
-            </div>
+            <div class="action-icon"><i class="fas fa-user-plus"></i></div>
             <div class="action-title">Novo Usuário</div>
             <div class="action-desc">Cadastrar novo leitor</div>
         </a>
 
         <a th:href="@{/livros}" class="action-card">
-            <div class="action-icon">
-                <i class="fas fa-search"></i>
-            </div>
+            <div class="action-icon"><i class="fas fa-search"></i></div>
             <div class="action-title">Consultar Acervo</div>
             <div class="action-desc">Buscar e editar livros</div>
         </a>
 
         <a th:href="@{/emprestimos/novo}" class="action-card">
-            <div class="action-icon">
-                <i class="fas fa-hand-holding-heart"></i>
-            </div>
+            <div class="action-icon"><i class="fas fa-hand-holding-heart"></i></div>
             <div class="action-title">Novo Empréstimo</div>
             <div class="action-desc">Registrar saída de livro</div>
         </a>
     </div>
 
 </div>
+
+<script>
+    // 1. Verifica se já existe uma preferência salva
+    const savedTheme = localStorage.getItem('theme');
+    const btnTheme = document.querySelector('.btn-theme i');
+
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateIcon(savedTheme);
+    } else {
+        // Padrão do sistema
+        const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (userPrefersDark) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            updateIcon('dark');
+        }
+    }
+
+    // 2. Função de Trocar
+    function toggleTheme() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateIcon(newTheme);
+    }
+
+    // 3. Atualiza o ícone do botão
+    function updateIcon(theme) {
+        if (theme === 'dark') {
+            btnTheme.classList.remove('fa-moon');
+            btnTheme.classList.add('fa-sun');
+        } else {
+            btnTheme.classList.remove('fa-sun');
+            btnTheme.classList.add('fa-moon');
+        }
+    }
+</script>
 
 </body>
 </html>
