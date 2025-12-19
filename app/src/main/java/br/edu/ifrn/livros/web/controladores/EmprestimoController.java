@@ -8,13 +8,11 @@ import br.edu.ifrn.livros.persistencia.repositorio.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Controller
 @RequestMapping("/emprestimos")
@@ -25,10 +23,25 @@ public class EmprestimoController {
     @Autowired private UsuarioRepository usuarioRepository;
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("emprestimos", emprestimoRepository.findAll());
-        // Envia a data de hoje para calcular atrasos na interface
-        model.addAttribute("hoje", LocalDate.now()); 
+    public String listar(@RequestParam(value = "busca", required = false) String busca,
+                         @RequestParam(value = "status", required = false) String status,
+                         Model model) {
+        
+        List<Emprestimo> emprestimos;
+
+        if ((busca != null && !busca.isEmpty()) || (status != null && !status.isEmpty())) {
+            emprestimos = emprestimoRepository.buscarComFiltros(busca, status);
+        } else {
+            emprestimos = emprestimoRepository.findAll();
+        }
+
+        model.addAttribute("emprestimos", emprestimos);
+        model.addAttribute("hoje", LocalDate.now());
+        
+        // Mantém os filtros preenchidos na tela
+        model.addAttribute("termoBusca", busca);
+        model.addAttribute("statusSelecionado", status);
+        
         return "Emprestimo/lista-emprestimo";
     }
 
@@ -51,7 +64,7 @@ public class EmprestimoController {
             emprestimoRepository.save(emprestimo);
             attr.addFlashAttribute("mensagem", "Empréstimo realizado com sucesso!");
         } else {
-            attr.addFlashAttribute("erro", "Livro não disponível para empréstimo.");
+            attr.addFlashAttribute("erro", "Livro não disponível.");
         }
         
         return "redirect:/emprestimos";
