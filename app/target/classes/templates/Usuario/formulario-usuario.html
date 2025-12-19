@@ -2,570 +2,164 @@
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${usuario.id != null} ? 'Editar Usuário - SmartLibrary' : 'Cadastrar Usuário - SmartLibrary'">Cadastrar Usuário - SmartLibrary</title>
+    <title th:text="${usuario.id != null} ? 'Editar Usuário' : 'Novo Usuário'">Cadastrar Usuário</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* MANTENHA TODO O SEU CSS AQUI (é bom) */
+        /* === VARIÁVEIS DE TEMA === */
         :root {
-            --primary: #4361ee;
-            --primary-dark: #3a56d4;
-            --secondary: #7209b7;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --light-gray: #e9ecef;
-            --success: #4cc9f0;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            --radius: 16px;
-            --transition: all 0.3s ease;
+            --primary: #4361ee; --secondary: #7209b7;
+            --bg-body: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --bg-card: white; --bg-nav: rgba(255, 255, 255, 0.95);
+            --text-main: #212529; --text-muted: #64748b;
+            --border-color: #e2e8f0; --shadow: 0 10px 40px -10px rgba(0,0,0,0.1);
+            --hover-item: #eff6ff; --input-bg: #f8fafc; --radius: 20px;
+            --avatar-bg: #e0e7ff; --avatar-color: #4361ee;
+        }
+        [data-theme="dark"] {
+            --bg-body: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --bg-card: #1e293b; --bg-nav: rgba(30, 41, 59, 0.95);
+            --text-main: #f1f5f9; --text-muted: #94a3b8;
+            --border-color: #334155; --shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+            --hover-item: #334155; --input-bg: #0f172a;
+            --avatar-bg: #334155; --avatar-color: #818cf8;
         }
 
-         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); min-height: 100vh; color: var(--text-main); padding-bottom: 40px; transition: 0.3s; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            color: var(--dark);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
+        /* NAVBAR */
+        .navbar { background: var(--bg-nav); backdrop-filter: blur(10px); padding: 15px 30px; border-radius: 24px; margin: 20px 0 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); border: 1px solid var(--border-color); }
+        .nav-left { display: flex; align-items: center; gap: 40px; }
+        .brand { font-size: 22px; font-weight: 800; color: var(--primary); text-decoration: none; display: flex; gap: 10px; align-items: center; }
+        .nav-links { display: flex; gap: 10px; }
+        
+        /* ITEM DO MENU COM ÍCONE */
+        .nav-item { color: var(--text-muted); text-decoration: none; font-weight: 600; padding: 8px 16px; border-radius: 12px; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .nav-item:hover, .nav-item.active { color: var(--primary); background: var(--hover-item); transform: scale(1.1); box-shadow: 0 5px 15px rgba(67, 97, 238, 0.15); z-index: 1; }
+        
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        
+        .btn-theme { background: transparent; border: 2px solid var(--border-color); color: var(--text-muted); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: 0.3s; }
+        .btn-theme:hover { border-color: var(--primary); color: var(--primary); transform: rotate(15deg); }
+        .btn-logout { background: #fee2e2; color: #ef4444; border: none; padding: 10px 20px; border-radius: 50px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .btn-logout:hover { background: #fecaca; transform: translateY(-2px) scale(1.05); }
 
-        .header {
-            width: 100%;
-            max-width: 800px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .form-wrapper { max-width: 600px; margin: 0 auto; }
+        .form-card { background: var(--bg-card); padding: 40px 50px; border-radius: var(--radius); box-shadow: var(--shadow); position: relative; overflow: hidden; border: 1px solid var(--border-color); animation: slideUp 0.5s ease; }
+        .form-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, var(--primary), var(--secondary)); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--primary);
-            font-weight: 700;
-            font-size: 24px;
-            text-decoration: none;
-        }
+        .form-header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+        .form-title { font-size: 26px; font-weight: 800; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 10px; display: inline-flex; align-items: center; gap: 10px; }
+        .title-icon { color: var(--primary); font-size: 24px; background: none; -webkit-text-fill-color: var(--primary); }
 
-        .logo i {
-            font-size: 32px;
-        }
+        .avatar-upload { display: flex; justify-content: center; margin-bottom: 30px; }
+        .avatar-circle { width: 100px; height: 100px; border-radius: 50%; background: var(--avatar-bg); color: var(--avatar-color); display: flex; align-items: center; justify-content: center; font-size: 40px; position: relative; border: 4px solid var(--bg-card); box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: 0.3s; }
+        .avatar-edit-icon { position: absolute; bottom: 0; right: 0; width: 32px; height: 32px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; border: 3px solid var(--bg-card); cursor: pointer; }
 
-        .back-btn {
-            background: white;
-            color: var(--primary);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            text-decoration: none;
-        }
-
-        .back-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .page-title {
-            font-size: 42px;
-            font-weight: 800;
-            margin: 30px 0;
-            text-align: center;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            position: relative;
-        }
-
-        .page-title:after {
-            content: '';
-            position: absolute;
-            width: 80px;
-            height: 5px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-radius: 5px;
-        }
-
-        .form-container {
-            width: 100%;
-            max-width: 520px;
-            background: white;
-            padding: 40px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 40px;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .form-container:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-        }
-
-        .form-header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
-        .form-header i {
-            font-size: 48px;
-            color: var(--primary);
-            margin-bottom: 15px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .form-header h2 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: var(--dark);
-        }
-
-        .form-header p {
-            color: var(--gray);
-            font-size: 16px;
-        }
-
-        .form-group {
-            margin-bottom: 24px;
-            position: relative;
-        }
-
-        label {
-            font-size: 15px;
-            font-weight: 600;
-            display: block;
-            margin-bottom: 8px;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        label i {
-            color: var(--primary);
-            width: 20px;
-        }
-
-        .input-with-icon {
-            position: relative;
-        }
-
-        .input-with-icon i {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-            font-size: 18px;
-        }
-
-        input {
-            width: 100%;
-            padding: 16px 16px 16px 48px;
-            border-radius: 12px;
-            border: 2px solid var(--light-gray);
-            font-size: 16px;
-            transition: var(--transition);
-            background-color: var(--light);
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-        }
-
-        input:hover {
-            border-color: #b8c1ec;
-        }
-
-        .btn-primary {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            padding: 18px;
-            width: 100%;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 17px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            transition: var(--transition);
-            margin-top: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-            padding: 16px;
-            width: 100%;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 17px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            transition: var(--transition);
-            margin-top: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
-        .btn-secondary:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
-        }
-
-        .form-footer {
-            text-align: center;
-            margin-top: 30px;
-            color: var(--gray);
-            font-size: 14px;
-            padding-top: 20px;
-            border-top: 1px solid var(--light-gray);
-        }
-
-        .form-footer a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .form-footer a:hover {
-            text-decoration: underline;
-        }
-
-        .user-avatar {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 25px;
-        }
-
-        .avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 40px;
-            font-weight: 700;
-            position: relative;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .avatar:hover {
-            transform: scale(1.05);
-        }
-
-        .avatar i {
-            font-size: 48px;
-        }
-
-        .avatar-edit {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            background: white;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            color: var(--primary);
-        }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .loading-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-overlay p {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        @media (max-width: 600px) {
-            .form-container {
-                padding: 30px 20px;
-                margin: 0 10px;
-            }
-            
-            .page-title {
-                font-size: 32px;
-            }
-            
-            .header {
-                flex-direction: column;
-                gap: 15px;
-                margin-bottom: 30px;
-            }
-        }
+        .form-group { margin-bottom: 25px; }
+        label { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-weight: 600; color: var(--text-main); font-size: 14px; }
+        label i { color: var(--primary); width: 16px; text-align: center; }
+        
+        input { width: 100%; padding: 14px; border: 2px solid var(--border-color); border-radius: 12px; font-size: 15px; transition: 0.3s; background: var(--input-bg); color: var(--text-main); box-sizing: border-box; }
+        input:focus { border-color: var(--primary); background: var(--bg-card); outline: none; box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1); }
+        
+        .btn-save { width: 100%; padding: 16px; background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; display: flex; justify-content: center; gap: 10px; align-items: center; }
+        .btn-save:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(67, 97, 238, 0.35); }
+        
+        .btn-back { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 20px; color: var(--text-muted); text-decoration: none; font-weight: 600; transition: 0.3s; }
+        .btn-back:hover { color: var(--primary); }
+        .error { color: #ef4444; font-size: 13px; margin-top: 5px; }
     </style>
-
 </head>
-
 <body>
-    <div class="header">
-        <a th:href="@{/usuarios}" class="logo">
-            <i class="fas fa-book-open"></i>
-            <span>SmartLibrary</span>
-        </a>
-        <a th:href="@{/usuarios}" class="back-btn">
-            <i class="fas fa-arrow-left"></i>
-            Voltar para Lista
-        </a>
-    </div>
 
-    <h1 class="page-title" th:text="${usuario.id != null} ? 'Editar Usuário' : 'Cadastrar Novo Usuário'">
-        Cadastrar Novo Usuário
-    </h1>
-
-    <div class="form-container">
-        <div class="form-header">
-            <i class="fas fa-user-plus"></i>
-            <h2 th:text="${usuario.id != null} ? 'Editar Conta' : 'Criar Nova Conta'">Criar Nova Conta</h2>
-            <p th:text="${usuario.id != null} ? 'Edite os dados do usuário abaixo' : 'Preencha os dados abaixo para cadastrar um novo usuário'">
-                Preencha os dados abaixo para cadastrar um novo usuário
-            </p>
-        </div>
-
-        <div class="user-avatar">
-            <div class="avatar" id="avatar">
-                <i class="fas fa-user"></i>
-                <div class="avatar-edit">
-                    <i class="fas fa-camera"></i>
-                </div>
+<div class="container">
+    <nav class="navbar">
+        <div class="nav-left">
+            <a th:href="@{/}" class="brand"> <i class="fas fa-book-open"></i> SmartLibrary </a>
+            <div class="nav-links">
+                <a th:href="@{/}" class="nav-item"> <i class="fas fa-home"></i> Início </a>
+                <a th:href="@{/usuarios}" class="nav-item active"> <i class="fas fa-users"></i> Usuários </a>
+                <a th:href="@{/livros}" class="nav-item"> <i class="fas fa-book"></i> Livros </a>
+                <a th:href="@{/emprestimos}" class="nav-item"> <i class="fas fa-exchange-alt"></i> Empréstimos </a>
             </div>
         </div>
+        <div class="nav-right">
+            <button class="btn-theme" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Encerrar Sessão</button>
+            </form>
+        </div>
+    </nav>
 
-        <!-- FORMULÁRIO CORRIGIDO PARA SPRING/THYMELEAF -->
-        <form th:action="@{/usuarios}" th:object="${usuario}" method="post">
-            <!-- Campo hidden para o ID (importante para edição) -->
-            <input type="hidden" th:field="*{id}" />
+    <div class="form-wrapper">
+        <div class="form-card">
+            <div class="form-header">
+                <h2 class="form-title">
+                    <i class="fas fa-user-circle title-icon"></i>
+                    <span th:text="${usuario.id != null} ? 'Editar Cadastro' : 'Novo Leitor'">Cadastro</span>
+                </h2>
+                <p style="color: var(--text-muted);">Preencha os dados abaixo para salvar no sistema.</p>
+            </div>
             
-            <div class="form-group">
-                <label for="nome">
+            <div class="avatar-upload">
+                <div class="avatar-circle">
                     <i class="fas fa-user"></i>
-                    Nome completo
-                </label>
-                <div class="input-with-icon">
-                    <i class="fas fa-user"></i>
-                    <input type="text" th:field="*{nome}" id="nome" 
-                           placeholder="Digite o nome completo" 
-                           th:class="${#fields.hasErrors('nome')} ? 'error-field' : ''"
-                           required>
-                    <div th:if="${#fields.hasErrors('nome')}" class="error-message">
-                        <small th:errors="*{nome}"></small>
+                    <div class="avatar-edit-icon">
+                        <i class="fas fa-camera"></i>
                     </div>
                 </div>
             </div>
+            
+            <form th:action="@{/usuarios/salvar}" th:object="${usuario}" method="post">
+                <input type="hidden" th:field="*{id}" />
 
-            <div class="form-group">
-                <label for="email">
-                    <i class="fas fa-envelope"></i>
-                    Email
-                </label>
-                <div class="input-with-icon">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" th:field="*{email}" id="email" 
-                           placeholder="exemplo@email.com"
-                           th:class="${#fields.hasErrors('email')} ? 'error-field' : ''"
-                           required>
-                    <div th:if="${#fields.hasErrors('email')}" class="error-message">
-                        <small th:errors="*{email}"></small>
-                    </div>
+                <div class="form-group">
+                    <label> <i class="fas fa-user"></i> Nome Completo </label>
+                    <input type="text" th:field="*{nome}" placeholder="Ex: João da Silva" required />
+                    <div class="error" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label for="telefone">
-                    <i class="fas fa-phone"></i>
-                    Telefone
-                </label>
-                <div class="input-with-icon">
-                    <i class="fas fa-phone"></i>
-                    <input type="text" th:field="*{telefone}" id="telefone" 
-                           placeholder="(11) 99999-9999"
-                           required>
+                <div class="form-group">
+                    <label> <i class="fas fa-envelope"></i> E-mail </label>
+                    <input type="email" th:field="*{email}" placeholder="Ex: joao@email.com" required />
+                    <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
                 </div>
-            </div>
 
-            <button type="submit" class="btn-primary">
-                <i class="fas fa-save"></i>
-                <span th:text="${usuario.id != null} ? 'Atualizar Usuário' : 'Salvar Usuário'">
-                    Salvar Usuário
-                </span>
-            </button>
+                <div class="form-group">
+                    <label> <i class="fas fa-phone"></i> Telefone </label>
+                    <input type="text" th:field="*{telefone}" placeholder="Ex: (84) 99999-9999" />
+                </div>
 
-            <a th:href="@{/usuarios}" class="btn-secondary">
-                <i class="fas fa-list"></i>
-                Ver Lista de Usuários
-            </a>
-        </form>
-
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i> Salvar Registro
+                </button>
+                <a th:href="@{/usuarios}" class="btn-back"> <i class="fas fa-arrow-left"></i> Voltar</a>
+            </form>
+        </div>
     </div>
+</div>
 
-    <script>
-        // Adicione estilos para erros
-        const style = document.createElement('style');
-        style.textContent = `
-            .error-field {
-                border-color: #ef476f !important;
-                box-shadow: 0 0 0 3px rgba(239, 71, 111, 0.2) !important;
-            }
-            .error-message {
-                color: #ef476f;
-                font-size: 14px;
-                margin-top: 5px;
-                font-weight: 600;
-            }
-        `;
-        document.head.appendChild(style);
-        
-        // Adicionar máscara de telefone
-        document.getElementById('telefone').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            
-            if (value.length > 10) {
-                value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
-            } else if (value.length > 6) {
-                value = value.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
-            } else if (value.length > 2) {
-                value = value.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
-            } else if (value.length > 0) {
-                value = value.replace(/^(\d*)/, '($1');
-            }
-            
-            e.target.value = value;
-        });
-        
-        // Atualizar avatar com iniciais quando o nome é digitado
-        document.getElementById('nome').addEventListener('input', function(e) {
-            const name = e.target.value.trim();
-            if (name.length > 0) {
-                const initials = name.split(' ')
-                    .map(n => n[0])
-                    .join('')
-                    .toUpperCase()
-                    .substring(0, 2);
-                
-                const avatar = document.getElementById('avatar');
-                avatar.innerHTML = `<span style="font-size: 32px;">${initials}</span>
-                                   <div class="avatar-edit"><i class="fas fa-camera"></i></div>`;
-            }
-        });
-        
-        // Se estiver editando, inicializar avatar com as iniciais
-        window.addEventListener('load', () => {
-            const nomeInput = document.getElementById('nome');
-            if (nomeInput && nomeInput.value) {
-                const name = nomeInput.value.trim();
-                if (name.length > 0) {
-                    const initials = name.split(' ')
-                        .map(n => n[0])
-                        .join('')
-                        .toUpperCase()
-                        .substring(0, 2);
-                    
-                    const avatar = document.getElementById('avatar');
-                    avatar.innerHTML = `<span style="font-size: 32px;">${initials}</span>
-                                       <div class="avatar-edit"><i class="fas fa-camera"></i></div>`;
-                }
-            }
-        });
-    </script>
+<script>
+    const btnTheme = document.querySelector('.btn-theme i');
+    const themeKey = 'theme';
+    const savedTheme = localStorage.getItem(themeKey) || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    if (savedTheme === 'dark') btnTheme.classList.replace('fa-moon', 'fa-sun');
+    else btnTheme.classList.replace('fa-sun', 'fa-moon');
+
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const newTheme = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem(themeKey, newTheme);
+        if (newTheme === 'dark') btnTheme.classList.replace('fa-moon', 'fa-sun');
+        else btnTheme.classList.replace('fa-sun', 'fa-moon');
+    }
+</script>
+
 </body>
 </html>

@@ -5,51 +5,145 @@
     <title>Novo Empréstimo - SmartLibrary</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #4361ee; --secondary: #7209b7; --radius: 12px; }
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .card { background: white; padding: 40px; border-radius: var(--radius); width: 100%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        h2 { color: var(--primary); margin-bottom: 20px; text-align: center; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
-        select, input { width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; margin-bottom: 20px; font-size: 16px; }
-        select:focus, input:focus { border-color: var(--primary); outline: none; }
-        .btn { width: 100%; padding: 14px; background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .btn:hover { opacity: 0.9; }
-        .btn-back { background: transparent; color: #666; margin-top: 10px; display: block; text-align: center; text-decoration: none; }
+        :root {
+            --primary: #4361ee; --secondary: #7209b7;
+            --bg-body: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --bg-card: white; --bg-nav: rgba(255, 255, 255, 0.95);
+            --text-main: #212529; --text-muted: #64748b;
+            --border-color: #e2e8f0; --shadow: 0 10px 40px -10px rgba(0,0,0,0.1);
+            --hover-item: #eff6ff; --input-bg: #f8fafc; --radius: 20px;
+        }
+        [data-theme="dark"] {
+            --bg-body: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --bg-card: #1e293b; --bg-nav: rgba(30, 41, 59, 0.95);
+            --text-main: #f1f5f9; --text-muted: #94a3b8;
+            --border-color: #334155; --shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+            --hover-item: #334155; --input-bg: #0f172a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); min-height: 100vh; color: var(--text-main); padding-bottom: 40px; transition: 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* NAVBAR */
+        .navbar { background: var(--bg-nav); backdrop-filter: blur(10px); padding: 15px 30px; border-radius: 24px; margin: 20px 0 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); border: 1px solid var(--border-color); }
+        .nav-left { display: flex; align-items: center; gap: 40px; }
+        .brand { font-size: 22px; font-weight: 800; color: var(--primary); text-decoration: none; display: flex; gap: 10px; align-items: center; }
+        .nav-links { display: flex; gap: 10px; }
+        
+        /* ITEM DO MENU COM ÍCONE */
+        .nav-item { color: var(--text-muted); text-decoration: none; font-weight: 600; padding: 8px 16px; border-radius: 12px; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .nav-item:hover, .nav-item.active { color: var(--primary); background: var(--hover-item); transform: scale(1.1); box-shadow: 0 5px 15px rgba(67, 97, 238, 0.15); z-index: 1; }
+        
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .btn-theme { background: transparent; border: 2px solid var(--border-color); color: var(--text-muted); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: 0.3s; }
+        .btn-theme:hover { border-color: var(--primary); color: var(--primary); transform: rotate(15deg); }
+        .btn-logout { background: #fee2e2; color: #ef4444; border: none; padding: 10px 20px; border-radius: 50px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .btn-logout:hover { background: #fecaca; transform: translateY(-2px) scale(1.05); }
+
+        .form-wrapper { max-width: 600px; margin: 0 auto; }
+        .form-card { background: var(--bg-card); padding: 40px 50px; border-radius: var(--radius); box-shadow: var(--shadow); position: relative; overflow: hidden; border: 1px solid var(--border-color); }
+        .form-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, var(--primary), var(--secondary)); }
+
+        .form-header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+        .form-title { font-size: 26px; font-weight: 800; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 10px; display: inline-flex; align-items: center; gap: 10px; }
+        .title-icon { color: var(--primary); font-size: 24px; background: none; -webkit-text-fill-color: var(--primary); }
+
+        .form-group { margin-bottom: 25px; }
+        label { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-weight: 600; color: var(--text-main); font-size: 14px; }
+        label i { color: var(--primary); width: 16px; text-align: center; }
+        
+        select, input { width: 100%; padding: 14px; border: 2px solid var(--border-color); border-radius: 12px; font-size: 15px; transition: 0.3s; background: var(--input-bg); color: var(--text-main); box-sizing: border-box; }
+        select:focus, input:focus { border-color: var(--primary); background: var(--bg-card); outline: none; box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1); }
+        
+        .btn-save { width: 100%; padding: 16px; background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; display: flex; justify-content: center; gap: 10px; align-items: center; }
+        .btn-save:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(67, 97, 238, 0.35); }
+        .btn-back { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 20px; color: var(--text-muted); text-decoration: none; font-weight: 600; transition: 0.3s; }
+        .btn-back:hover { color: var(--primary); }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2><i class="fas fa-book-reader"></i> Novo Empréstimo</h2>
-        
-        <form th:action="@{/emprestimos/salvar}" th:object="${emprestimo}" method="post">
+
+<div class="container">
+    <nav class="navbar">
+        <div class="nav-left">
+            <a th:href="@{/}" class="brand"> <i class="fas fa-book-open"></i> SmartLibrary </a>
+            <div class="nav-links">
+                <a th:href="@{/}" class="nav-item"> <i class="fas fa-home"></i> Início </a>
+                <a th:href="@{/usuarios}" class="nav-item"> <i class="fas fa-users"></i> Usuários </a>
+                <a th:href="@{/livros}" class="nav-item"> <i class="fas fa-book"></i> Livros </a>
+                <a th:href="@{/emprestimos}" class="nav-item active"> <i class="fas fa-exchange-alt"></i> Empréstimos </a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn-theme" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Encerrar Sessão</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="form-wrapper">
+        <div class="form-card">
+            <div class="form-header">
+                <h2 class="form-title">
+                    <i class="fas fa-hand-holding-heart title-icon"></i>
+                    Registrar Saída
+                </h2>
+                <p style="color: var(--text-muted);">Selecione o usuário e o livro para efetuar o empréstimo.</p>
+            </div>
             
-            <label for="usuario">Usuário</label>
-            <select id="usuario" th:field="*{usuario}" required>
-                <option value="">Selecione um usuário...</option>
-                <option th:each="u : ${usuarios}" th:value="${u.id}" th:text="${u.nome}"></option>
-            </select>
+            <form th:action="@{/emprestimos/salvar}" th:object="${emprestimo}" method="post">
+                
+                <div class="form-group">
+                    <label> <i class="fas fa-user"></i> Selecione o Usuário </label>
+                    <select th:field="*{usuario}" required>
+                        <option value="">-- Escolha um leitor --</option>
+                        <option th:each="u : ${usuarios}" th:value="${u.id}" th:text="${u.nome}"></option>
+                    </select>
+                </div>
 
-            <label for="livro">Livro</label>
-            <select id="livro" th:field="*{livro}" required>
-                <option value="">Selecione um livro...</option>
-                <option th:each="l : ${livros}" 
-                        th:if="${l.quantidadeDisponivel > 0}"
-                        th:value="${l.id}" 
-                        th:text="${l.titulo + ' (Disp: ' + l.quantidadeDisponivel + ')'}">
-                </option>
-            </select>
+                <div class="form-group">
+                    <label> <i class="fas fa-book"></i> Selecione o Livro </label>
+                    <select th:field="*{livro}" required>
+                        <option value="">-- Escolha uma obra --</option>
+                        <option th:each="l : ${livros}" th:if="${l.quantidadeDisponivel > 0}" th:value="${l.id}" th:text="${l.titulo + ' (Estoque: ' + l.quantidadeDisponivel + ')'}"></option>
+                    </select>
+                </div>
 
-            <label for="dataEmprestimo">Data do Empréstimo</label>
-            <input type="date" id="dataEmprestimo" th:field="*{dataEmprestimo}" required>
+                <div class="form-group">
+                    <label> <i class="fas fa-calendar-day"></i> Data de Saída </label>
+                    <input type="date" th:field="*{dataEmprestimo}" required />
+                </div>
 
-            <button type="submit" class="btn">Confirmar Empréstimo</button>
-            <a th:href="@{/emprestimos}" class="btn-back">Cancelar</a>
-        </form>
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-check"></i> Confirmar Empréstimo
+                </button>
+                <a th:href="@{/emprestimos}" class="btn-back"> <i class="fas fa-arrow-left"></i> Cancelar</a>
+            </form>
+        </div>
     </div>
-    
-    <script>
-        // Define a data de hoje automaticamente
-        document.getElementById('dataEmprestimo').valueAsDate = new Date();
-    </script>
+</div>
+
+<script>
+    document.querySelector('input[type="date"]').valueAsDate = new Date();
+
+    const btnTheme = document.querySelector('.btn-theme i');
+    const themeKey = 'theme';
+    const savedTheme = localStorage.getItem(themeKey) || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    if (savedTheme === 'dark') btnTheme.classList.replace('fa-moon', 'fa-sun');
+    else btnTheme.classList.replace('fa-sun', 'fa-moon');
+
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const newTheme = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem(themeKey, newTheme);
+        if (newTheme === 'dark') btnTheme.classList.replace('fa-moon', 'fa-sun');
+        else btnTheme.classList.replace('fa-sun', 'fa-moon');
+    }
+</script>
+
 </body>
 </html>

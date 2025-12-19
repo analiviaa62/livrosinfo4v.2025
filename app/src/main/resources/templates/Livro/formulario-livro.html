@@ -2,659 +2,180 @@
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${livro.id != null} ? 'Editar Livro - SmartLibrary' : 'Cadastrar Livro - SmartLibrary'">
-        Cadastrar Livro - SmartLibrary
-    </title>
+    <title th:text="${livro.id != null} ? 'Editar Livro' : 'Novo Livro'">Cadastrar Livro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #4361ee;
-            --primary-dark: #3a56d4;
-            --secondary: #7209b7;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --light-gray: #e9ecef;
-            --danger: #ef476f;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            --radius: 16px;
-            --transition: all 0.3s ease;
+            --primary: #4361ee; --secondary: #7209b7;
+            --bg-body: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --bg-card: white; --bg-nav: rgba(255, 255, 255, 0.95);
+            --text-main: #212529; --text-muted: #64748b;
+            --border-color: #e2e8f0; --shadow: 0 10px 40px -10px rgba(0,0,0,0.1);
+            --hover-item: #eff6ff; --input-bg: #f8fafc; --radius: 20px;
+            --cover-bg: #e0e7ff; --cover-color: #4361ee;
+        }
+        [data-theme="dark"] {
+            --bg-body: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --bg-card: #1e293b; --bg-nav: rgba(30, 41, 59, 0.95);
+            --text-main: #f1f5f9; --text-muted: #94a3b8;
+            --border-color: #334155; --shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+            --hover-item: #334155; --input-bg: #0f172a;
+            --cover-bg: #334155; --cover-color: #818cf8;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); min-height: 100vh; color: var(--text-main); padding-bottom: 40px; transition: 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            color: var(--dark);
-            padding: 20px;
-        }
+        /* NAVBAR */
+        .navbar { background: var(--bg-nav); backdrop-filter: blur(10px); padding: 15px 30px; border-radius: 24px; margin: 20px 0 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); border: 1px solid var(--border-color); }
+        .nav-left { display: flex; align-items: center; gap: 40px; }
+        .brand { font-size: 22px; font-weight: 800; color: var(--primary); text-decoration: none; display: flex; gap: 10px; align-items: center; }
+        .nav-links { display: flex; gap: 10px; }
+        
+        /* ITEM DO MENU COM ÍCONE */
+        .nav-item { color: var(--text-muted); text-decoration: none; font-weight: 600; padding: 8px 16px; border-radius: 12px; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .nav-item:hover, .nav-item.active { color: var(--primary); background: var(--hover-item); transform: scale(1.1); box-shadow: 0 5px 15px rgba(67, 97, 238, 0.15); z-index: 1; }
+        
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .btn-theme { background: transparent; border: 2px solid var(--border-color); color: var(--text-muted); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: 0.3s; }
+        .btn-theme:hover { border-color: var(--primary); color: var(--primary); transform: rotate(15deg); }
+        .btn-logout { background: #fee2e2; color: #ef4444; border: none; padding: 10px 20px; border-radius: 50px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .btn-logout:hover { background: #fecaca; transform: translateY(-2px) scale(1.05); }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        .form-wrapper { max-width: 800px; margin: 0 auto; }
+        .form-card { background: var(--bg-card); padding: 40px 50px; border-radius: var(--radius); box-shadow: var(--shadow); position: relative; overflow: hidden; border: 1px solid var(--border-color); }
+        .form-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, var(--primary), var(--secondary)); }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
+        .form-header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+        .form-title { font-size: 26px; font-weight: 800; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 10px; display: inline-flex; align-items: center; gap: 10px; }
+        .title-icon { color: var(--primary); font-size: 24px; background: none; -webkit-text-fill-color: var(--primary); }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--primary);
-            font-weight: 700;
-            font-size: 24px;
-            text-decoration: none;
-        }
+        .book-cover-preview { width: 140px; height: 200px; margin: 0 auto 30px; background: var(--cover-bg); color: var(--cover-color); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed var(--primary); cursor: pointer; transition: 0.3s; }
+        .book-cover-preview:hover { opacity: 0.8; transform: scale(1.02); }
+        .book-cover-preview i { font-size: 40px; margin-bottom: 10px; }
+        .book-cover-preview span { font-size: 13px; font-weight: 600; }
 
-        .logo i {
-            font-size: 32px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 20px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            background: white;
-            color: var(--primary);
-            border-radius: 50px;
-            font-weight: 600;
-            text-decoration: none;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-
-        .nav-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .nav-link.active {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            color: white;
-        }
-
-        .page-title {
-            font-size: 42px;
-            font-weight: 800;
-            margin: 30px 0;
-            text-align: center;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            position: relative;
-        }
-
-        .page-title:after {
-            content: '';
-            position: absolute;
-            width: 80px;
-            height: 5px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-radius: 5px;
-        }
-
-        .form-container {
-            max-width: 900px;
-            margin: 0 auto 40px;
-            background: white;
-            padding: 40px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .form-container:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-        }
-
-        .form-header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
-        .form-header i {
-            font-size: 48px;
-            color: var(--primary);
-            margin-bottom: 15px;
-        }
-
-        .form-header h2 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: var(--dark);
-        }
-
-        .form-header p {
-            color: var(--gray);
-            font-size: 16px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .full-width {
-            grid-column: 1 / -1;
-        }
-
-        label {
-            font-size: 15px;
-            font-weight: 600;
-            display: block;
-            margin-bottom: 8px;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        label i {
-            color: var(--primary);
-            width: 20px;
-        }
-
-        .required:after {
-            content: ' *';
-            color: var(--danger);
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 14px 16px;
-            border-radius: 12px;
-            border: 2px solid var(--light-gray);
-            font-size: 16px;
-            transition: var(--transition);
-            background-color: white;
-            font-family: inherit;
-        }
-
-        textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-        }
-
-        .input-with-icon {
-            position: relative;
-        }
-
-        .input-with-icon i {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-            font-size: 18px;
-        }
-
-        .input-with-icon input, .input-with-icon select {
-            padding-left: 48px;
-        }
-
-        .error-field {
-            border-color: var(--danger) !important;
-            box-shadow: 0 0 0 3px rgba(239, 71, 111, 0.2) !important;
-        }
-
-        .error-message {
-            color: var(--danger);
-            font-size: 14px;
-            margin-top: 5px;
-            font-weight: 600;
-        }
-
-        .btn-primary {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 17px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-            padding: 14px 30px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 700;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
-        .btn-secondary:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 1px solid var(--light-gray);
-        }
-
-        .book-cover-preview {
-            width: 150px;
-            height: 200px;
-            margin: 0 auto 20px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 14px;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .book-cover-preview i {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
-
-        .quantity-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .quantity-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-            }
-            
-            .page-title {
-                font-size: 32px;
-            }
-        }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 25px; }
+        label { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-weight: 600; color: var(--text-main); font-size: 14px; }
+        label i { color: var(--primary); width: 16px; text-align: center; }
+        
+        input, select { width: 100%; padding: 14px; border: 2px solid var(--border-color); border-radius: 12px; font-size: 15px; transition: 0.3s; background: var(--input-bg); color: var(--text-main); box-sizing: border-box; }
+        input:focus, select:focus { border-color: var(--primary); background: var(--bg-card); outline: none; box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1); }
+        
+        .btn-save { width: 100%; padding: 16px; background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; display: flex; justify-content: center; gap: 10px; align-items: center; }
+        .btn-save:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(67, 97, 238, 0.35); }
+        .btn-back { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 20px; color: var(--text-muted); text-decoration: none; font-weight: 600; transition: 0.3s; }
+        .btn-back:hover { color: var(--primary); }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <!-- CABEÇALHO -->
-        <div class="header">
-            <a th:href="@{/}" class="logo">
-                <i class="fas fa-book-open"></i>
-                <span>SmartLibrary</span>
-            </a>
-            
+
+<div class="container">
+    <nav class="navbar">
+        <div class="nav-left">
+            <a th:href="@{/}" class="brand"> <i class="fas fa-book-open"></i> SmartLibrary </a>
             <div class="nav-links">
-                <a th:href="@{/usuarios}" class="nav-link">
-                    <i class="fas fa-users"></i>
-                    Usuários
-                </a>
-                <a th:href="@{/livros}" class="nav-link active">
-                    <i class="fas fa-book"></i>
-                    Livros
-                </a>
+                <a th:href="@{/}" class="nav-item"> <i class="fas fa-home"></i> Início </a>
+                <a th:href="@{/usuarios}" class="nav-item"> <i class="fas fa-users"></i> Usuários </a>
+                <a th:href="@{/livros}" class="nav-item active"> <i class="fas fa-book"></i> Livros </a>
+                <a th:href="@{/emprestimos}" class="nav-item"> <i class="fas fa-exchange-alt"></i> Empréstimos </a>
             </div>
         </div>
+        <div class="nav-right">
+            <button class="btn-theme" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Encerrar Sessão</button>
+            </form>
+        </div>
+    </nav>
 
-        <!-- TÍTULO -->
-        <h1 class="page-title" th:text="${livro.id != null} ? 'Editar Livro' : 'Cadastrar Novo Livro'">
-            Cadastrar Novo Livro
-        </h1>
-
-        <!-- FORMULÁRIO -->
-        <div class="form-container">
+    <div class="form-wrapper">
+        <div class="form-card">
             <div class="form-header">
-                <i class="fas fa-book-medical"></i>
-                <h2 th:text="${livro.id != null} ? 'Editar Informações do Livro' : 'Adicionar Novo Livro ao Acervo'">
-                    Adicionar Novo Livro ao Acervo
+                <h2 class="form-title">
+                    <i class="fas fa-book-medical title-icon"></i>
+                    <span th:text="${livro.id != null} ? 'Editar Obra' : 'Registrar Livro'">Registrar Livro</span>
                 </h2>
-                <p th:text="${livro.id != null} ? 'Atualize as informações do livro abaixo' : 'Preencha todos os campos para cadastrar um novo livro no sistema'">
-                    Preencha todos os campos para cadastrar um novo livro no sistema
-                </p>
+                <p style="color: var(--text-muted);">Adicione um novo título ao acervo da biblioteca.</p>
             </div>
-
-            <!-- CAPA DO LIVRO -->
+            
             <div class="book-cover-preview">
-                <i class="fas fa-book"></i>
+                <i class="fas fa-book-open"></i>
                 <span>Capa do Livro</span>
-                <small>(Pré-visualização)</small>
             </div>
-
-            <form th:action="@{/livros}" th:object="${livro}" method="post">
-                <!-- Campo hidden para ID -->
+            
+            <form th:action="@{/livros/salvar}" th:object="${livro}" method="post">
                 <input type="hidden" th:field="*{id}" />
+
+                <div class="form-group">
+                    <label> <i class="fas fa-heading"></i> Título da Obra </label>
+                    <input type="text" th:field="*{titulo}" placeholder="Ex: Dom Casmurro" required />
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label> <i class="fas fa-user-pen"></i> Autor </label>
+                        <input type="text" th:field="*{autor}" placeholder="Ex: Machado de Assis" required />
+                    </div>
+                    <div class="form-group">
+                        <label> <i class="fas fa-tags"></i> Gênero </label>
+                        <select th:field="*{genero}">
+                            <option th:each="genero : ${T(br.edu.ifrn.livros.persistencia.modelo.GeneroLivro).values()}"
+                                    th:value="${genero}" th:text="${genero.descricao}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label> <i class="fas fa-barcode"></i> Código ISBN </label>
+                        <input type="text" th:field="*{isbn}" placeholder="000-00-0000-000-0" />
+                    </div>
+                    <div class="form-group">
+                        <label> <i class="fas fa-calendar-alt"></i> Ano de Publicação </label>
+                        <input type="number" th:field="*{anoPublicacao}" placeholder="Ex: 1899" />
+                    </div>
+                </div>
                 
                 <div class="form-grid">
-                    <!-- TÍTULO -->
-                    <div class="form-group full-width">
-                        <label for="titulo" class="required">
-                            <i class="fas fa-heading"></i>
-                            Título do Livro
-                        </label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-heading"></i>
-                            <input type="text" th:field="*{titulo}" id="titulo" 
-                                   placeholder="Digite o título completo do livro"
-                                   th:class="${#fields.hasErrors('titulo')} ? 'error-field' : ''"
-                                   required>
-                        </div>
-                        <div th:if="${#fields.hasErrors('titulo')}" class="error-message">
-                            <small th:errors="*{titulo}"></small>
-                        </div>
-                    </div>
-
-                    <!-- AUTOR -->
                     <div class="form-group">
-                        <label for="autor" class="required">
-                            <i class="fas fa-user-pen"></i>
-                            Autor
-                        </label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-user-pen"></i>
-                            <input type="text" th:field="*{autor}" id="autor" 
-                                   placeholder="Nome do autor"
-                                   th:class="${#fields.hasErrors('autor')} ? 'error-field' : ''"
-                                   required>
-                        </div>
-                        <div th:if="${#fields.hasErrors('autor')}" class="error-message">
-                            <small th:errors="*{autor}"></small>
-                        </div>
+                        <label> <i class="fas fa-file-alt"></i> Qtd. Páginas </label>
+                        <input type="number" th:field="*{quantidadePaginas}" />
                     </div>
-
-                    <!-- GÊNERO (ENUM) -->
                     <div class="form-group">
-                        <label for="genero" class="required">
-                            <i class="fas fa-tags"></i>
-                            Gênero Literário
-                        </label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-tags"></i>
-                            <select th:field="*{genero}" id="genero" 
-                                    th:class="${#fields.hasErrors('genero')} ? 'error-field' : ''"
-                                    required>
-                                <option value="">Selecione um gênero...</option>
-                                <!-- AQUI ESTAMOS USANDO O ENUM -->
-                                <option th:each="genero : ${generos}" 
-                                        th:value="${genero}" 
-                                        th:text="${genero.descricao}">
-                                </option>
-                            </select>
-                        </div>
-                        <div th:if="${#fields.hasErrors('genero')}" class="error-message">
-                            <small th:errors="*{genero}"></small>
-                        </div>
-                    </div>
-
-                    <!-- ISBN -->
-                    <div class="form-group">
-                        <label for="isbn">
-                            <i class="fas fa-barcode"></i>
-                            ISBN
-                        </label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-barcode"></i>
-                            <input type="text" th:field="*{isbn}" id="isbn" 
-                                   placeholder="Ex: 978-85-333-0227-3"
-                                   th:class="${#fields.hasErrors('isbn')} ? 'error-field' : ''">
-                        </div>
-                        <div th:if="${#fields.hasErrors('isbn')}" class="error-message">
-                            <small th:errors="*{isbn}"></small>
-                        </div>
-                    </div>
-
-                    <!-- ANO DE PUBLICAÇÃO -->
-                    <div class="form-group">
-                        <label for="anoPublicacao" class="required">
-                            <i class="fas fa-calendar-alt"></i>
-                            Ano de Publicação
-                        </label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-calendar-alt"></i>
-                            <input type="number" th:field="*{anoPublicacao}" id="anoPublicacao" 
-                                   min="1000" max="2100" step="1"
-                                   placeholder="Ex: 2024"
-                                   th:class="${#fields.hasErrors('anoPublicacao')} ? 'error-field' : ''"
-                                   required>
-                        </div>
-                        <div th:if="${#fields.hasErrors('anoPublicacao')}" class="error-message">
-                            <small th:errors="*{anoPublicacao}"></small>
-                        </div>
-                    </div>
-
-                    <!-- EDITORA -->
-                    <div class="form-group">
-                        <label for="editora">
-                            <i class="fas fa-building"></i>
-                            Editora
-                        </label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-building"></i>
-                            <input type="text" th:field="*{editora}" id="editora" 
-                                   placeholder="Nome da editora"
-                                   th:class="${#fields.hasErrors('editora')} ? 'error-field' : ''">
-                        </div>
-                        <div th:if="${#fields.hasErrors('editora')}" class="error-message">
-                            <small th:errors="*{editora}"></small>
-                        </div>
-                    </div>
-
-                    <!-- QUANTIDADE DE PÁGINAS -->
-                    <div class="form-group">
-                        <label for="quantidadePaginas" class="required">
-                            <i class="fas fa-file-alt"></i>
-                            Páginas
-                        </label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-file-alt"></i>
-                            <input type="number" th:field="*{quantidadePaginas}" id="quantidadePaginas" 
-                                   min="1"
-                                   placeholder="Número de páginas"
-                                   th:class="${#fields.hasErrors('quantidadePaginas')} ? 'error-field' : ''"
-                                   required>
-                        </div>
-                        <div th:if="${#fields.hasErrors('quantidadePaginas')}" class="error-message">
-                            <small th:errors="*{quantidadePaginas}"></small>
-                        </div>
-                    </div>
-
-                    <!-- QUANTIDADES (TOTAL E DISPONÍVEL) -->
-                    <div class="form-group full-width">
-                        <label class="required">
-                            <i class="fas fa-boxes-stacked"></i>
-                            Quantidade de Exemplares
-                        </label>
-                        <div class="quantity-container">
-                            <div>
-                                <div class="input-with-icon">
-                                    <i class="fas fa-box"></i>
-                                    <input type="number" th:field="*{quantidadeTotal}" 
-                                           id="quantidadeTotal" min="1" 
-                                           placeholder="Total"
-                                           th:class="${#fields.hasErrors('quantidadeTotal')} ? 'error-field' : ''"
-                                           required>
-                                </div>
-                                <div th:if="${#fields.hasErrors('quantidadeTotal')}" class="error-message">
-                                    <small th:errors="*{quantidadeTotal}"></small>
-                                </div>
-                                <small style="color: var(--gray); margin-top: 5px; display: block;">
-                                    Quantidade total no acervo
-                                </small>
-                            </div>
-                            
-                            <div>
-                                <div class="input-with-icon">
-                                    <i class="fas fa-box-open"></i>
-                                    <input type="number" th:field="*{quantidadeDisponivel}" 
-                                           id="quantidadeDisponivel" min="0"
-                                           placeholder="Disponível"
-                                           th:class="${#fields.hasErrors('quantidadeDisponivel')} ? 'error-field' : ''"
-                                           required>
-                                </div>
-                                <div th:if="${#fields.hasErrors('quantidadeDisponivel')}" class="error-message">
-                                    <small th:errors="*{quantidadeDisponivel}"></small>
-                                </div>
-                                <small style="color: var(--gray); margin-top: 5px; display: block;">
-                                    Quantidade disponível para empréstimo
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- PREÇO -->
-                    <div class="form-group">
-                        <label for="preco">
-                            <i class="fas fa-tag"></i>
-                            Preço (R$)
-                        </label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-tag"></i>
-                            <input type="number" th:field="*{preco}" id="preco" 
-                                   min="0" step="0.01"
-                                   placeholder="0.00"
-                                   th:class="${#fields.hasErrors('preco')} ? 'error-field' : ''">
-                        </div>
-                        <div th:if="${#fields.hasErrors('preco')}" class="error-message">
-                            <small th:errors="*{preco}"></small>
-                        </div>
-                    </div>
-
-                    <!-- SINOPSE -->
-                    <div class="form-group full-width">
-                        <label for="sinopse">
-                            <i class="fas fa-align-left"></i>
-                            Sinopse
-                        </label>
-                        <textarea th:field="*{sinopse}" id="sinopse" 
-                                  placeholder="Digite uma breve descrição do livro..."
-                                  rows="5"></textarea>
+                        <label> <i class="fas fa-boxes"></i> Estoque Inicial </label>
+                        <input type="number" th:field="*{quantidadeTotal}" min="1" required />
                     </div>
                 </div>
 
-                <!-- BOTÕES DE AÇÃO -->
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-save"></i>
-                        <span th:text="${livro.id != null} ? 'Atualizar Livro' : 'Cadastrar Livro'">
-                            Cadastrar Livro
-                        </span>
-                    </button>
-                    
-                    <a th:href="@{/livros}" class="btn-secondary">
-                        <i class="fas fa-times"></i>
-                        Cancelar
-                    </a>
-                </div>
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i> Salvar Livro
+                </button>
+                <a th:href="@{/livros}" class="btn-back"> <i class="fas fa-arrow-left"></i> Cancelar</a>
             </form>
         </div>
     </div>
+</div>
 
-    <script>
-        // Validação em tempo real para quantidade disponível
-        document.getElementById('quantidadeTotal').addEventListener('input', function() {
-            const total = parseInt(this.value) || 0;
-            const disponivelInput = document.getElementById('quantidadeDisponivel');
-            const disponivel = parseInt(disponivelInput.value) || 0;
-            
-            if (disponivel > total) {
-                disponivelInput.value = total;
-            }
-            
-            // Define o valor máximo para disponível
-            disponivelInput.max = total;
-        });
-        
-        // Máscara para ISBN (opcional)
-        document.getElementById('isbn').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/[^\dX-]/g, '');
-            e.target.value = value;
-        });
-        
-        // Validação de ano
-        document.getElementById('anoPublicacao').addEventListener('blur', function() {
-            const ano = parseInt(this.value);
-            const anoAtual = new Date().getFullYear();
-            
-            if (ano < 1000 || ano > anoAtual + 5) {
-                this.classList.add('error-field');
-                alert('Ano de publicação inválido!');
-            } else {
-                this.classList.remove('error-field');
-            }
-        });
-    </script>
+<script>
+    const btnTheme = document.querySelector('.btn-theme i');
+    const themeKey = 'theme';
+    const savedTheme = localStorage.getItem(themeKey) || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    if (savedTheme === 'dark') btnTheme.classList.replace('fa-moon', 'fa-sun');
+    else btnTheme.classList.replace('fa-sun', 'fa-moon');
+
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const newTheme = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem(themeKey, newTheme);
+        if (newTheme === 'dark') btnTheme.classList.replace('fa-moon', 'fa-sun');
+        else btnTheme.classList.replace('fa-sun', 'fa-moon');
+    }
+</script>
+
 </body>
 </html>
