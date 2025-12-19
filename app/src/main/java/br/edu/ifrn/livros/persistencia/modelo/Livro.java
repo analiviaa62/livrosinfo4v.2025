@@ -36,7 +36,7 @@ public class Livro {
 
     @NotNull(message = "O ano de publicação é obrigatório")
     @Min(value = 1000, message = "Ano de publicação inválido")
-    @Max(value = 2100, message = "Ano de publicação inválido")
+    @Max(value = 2100, message = "Ano de publicação inválido") // Mantido conforme sua preferência
     @Column(name = "ano_publicacao", nullable = false)
     private Integer anoPublicacao;
 
@@ -61,10 +61,13 @@ public class Livro {
     @Column(name = "quantidade_total", nullable = false)
     private Integer quantidadeTotal;
 
-    @NotNull(message = "A quantidade disponível é obrigatória")
+    // --- CORREÇÃO: @NotNull REMOVIDO DAQUI ---
+    // Removemos a obrigatoriedade aqui para permitir que o cadastro inicie com esse campo vazio.
+    // O valor será preenchido automaticamente (igual ao total) no método onCreate abaixo.
     @Min(value = 0, message = "A quantidade disponível não pode ser negativa")
     @Column(name = "quantidade_disponivel", nullable = false)
     private Integer quantidadeDisponivel;
+    // ------------------------------------------
 
     @DecimalMin(value = "0.0", message = "O preço não pode ser negativo")
     @Column(precision = 10, scale = 2)
@@ -73,15 +76,25 @@ public class Livro {
     @Column(name = "data_cadastro", nullable = false)
     private LocalDate dataCadastro;
 
+    @Column(nullable = true, length = 64)
+    private String imagem;
+
+    @Transient
+    public String getCaminhoImagem() {
+        if (imagem == null || id == null) return null;
+        return "/uploads/" + imagem;
+    }
+
     @PrePersist
     protected void onCreate() {
         dataCadastro = LocalDate.now();
+        // Lógica: Se for cadastro novo (disponível é nulo), ele assume o valor total
         if (quantidadeDisponivel == null) {
             quantidadeDisponivel = quantidadeTotal;
         }
     }
 
-      @PreUpdate
+    @PreUpdate
     protected void onUpdate() {
         if (dataCadastro == null) {
             dataCadastro = LocalDate.now();

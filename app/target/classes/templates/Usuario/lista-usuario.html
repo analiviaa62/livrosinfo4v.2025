@@ -74,7 +74,7 @@
         [data-theme="dark"] .btn-delete { background: rgba(248, 113, 113, 0.2); color: #f87171; }
 
         .user-info { display: flex; align-items: center; gap: 12px; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #e0e7ff 0%, #eff6ff 100%); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #e0e7ff 0%, #eff6ff 100%); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; overflow: hidden; } /* Overflow hidden adicionado */
         [data-theme="dark"] .user-avatar { background: rgba(67, 97, 238, 0.2); }
     </style>
 </head>
@@ -130,7 +130,10 @@
                     <tr th:each="usuario : ${usuarios}">
                         <td>
                             <div class="user-info">
-                                <div class="user-avatar"><i class="fas fa-user"></i></div>
+                                <div class="user-avatar">
+                                    <img th:if="${usuario.foto != null}" th:src="@{'/uploads/' + ${usuario.foto}}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <i th:unless="${usuario.foto != null}" class="fas fa-user"></i>
+                                </div>
                                 <div style="font-weight: 600;" th:text="${usuario.nome}">Nome</div>
                             </div>
                         </td>

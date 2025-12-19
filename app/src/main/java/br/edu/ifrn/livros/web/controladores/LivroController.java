@@ -3,12 +3,15 @@ package br.edu.ifrn.livros.web.controladores;
 import br.edu.ifrn.livros.persistencia.modelo.GeneroLivro;
 import br.edu.ifrn.livros.persistencia.modelo.Livro;
 import br.edu.ifrn.livros.persistencia.repositorio.LivroRepository;
+import br.edu.ifrn.livros.util.FileUploadUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -27,7 +30,6 @@ public class LivroController {
         
         List<Livro> livros;
 
-        // Se tiver busca ou gênero, usa o filtro inteligente
         if ((busca != null && !busca.isEmpty()) || genero != null) {
             livros = livroRepository.buscarComFiltros(busca, genero);
         } else {
@@ -35,8 +37,6 @@ public class LivroController {
         }
 
         model.addAttribute("livros", livros);
-        
-        // Dados para manter o filtro preenchido na tela
         model.addAttribute("generos", GeneroLivro.values());
         model.addAttribute("termoBusca", busca);
         model.addAttribute("generoSelecionado", genero);
@@ -51,13 +51,52 @@ public class LivroController {
     }
 
     @PostMapping("/salvar")
-    public String salvar(@Valid Livro livro, BindingResult result, RedirectAttributes attr) {
+    public String salvar(@Valid Livro livro, BindingResult result, 
+                         @RequestParam("file") MultipartFile file, 
+                         RedirectAttributes attr) {
+        
+        // Se a validação falhar, volta pro formulário e mostra os erros
         if (result.hasErrors()) {
             return "Livro/formulario-livro";
         }
         
-        livroRepository.save(livro);
-        attr.addFlashAttribute("mensagem", "Livro salvo com sucesso!");
+        try {
+            // LÓGICA DE CADASTRO NOVO VS EDIÇÃO
+            if (livro.getId() != null) {
+                // EDIÇÃO: Recupera dados antigos (Data e Imagem se não enviada)
+                Livro livroExistente = livroRepository.findById(livro.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Livro inválido"));
+                
+                livro.setDataCadastro(livroExistente.getDataCadastro());
+                
+                // Se a imagem nova for vazia, mantém a antiga
+                if (file.isEmpty()) {
+                    livro.setImagem(livroExistente.getImagem());
+                }
+            } else {
+                // NOVO: Define quantidade disponível igual ao total
+                if (livro.getQuantidadeDisponivel() == null) {
+                    livro.setQuantidadeDisponivel(livro.getQuantidadeTotal());
+                }
+            }
+
+            // UPLOAD DA IMAGEM (Se foi enviada)
+            if (!file.isEmpty()) {
+                String nomeArquivo = StringUtils.cleanPath(file.getOriginalFilename());
+                livro.setImagem(nomeArquivo);
+                
+                String diretorioUpload = "uploads";
+                FileUploadUtil.salvarArquivo(diretorioUpload, nomeArquivo, file);
+            }
+            
+            // SALVA NO BANCO
+            livroRepository.save(livro);
+            attr.addFlashAttribute("mensagem", "Livro salvo com sucesso!");
+
+        } catch (Exception e) {
+            attr.addFlashAttribute("erro", "Erro ao salvar: " + e.getMessage());
+        }
+
         return "redirect:/livros";
     }
 

@@ -1,11 +1,6 @@
 package br.edu.ifrn.livros.persistencia.modelo;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -40,4 +35,15 @@ public class Usuario {
     @Size(max = 20)
     @Column(length = 20)
     private String telefone;
+
+    // --- NOVO CAMPO PARA FOTO ---
+    @Column(nullable = true, length = 64)
+    private String foto;
+
+    @Transient
+    public String getCaminhoFoto() {
+        if (foto == null || id == null) return null;
+        return "/uploads/" + foto;
+    }
+    // ----------------------------
 }

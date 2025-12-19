@@ -2,12 +2,15 @@ package br.edu.ifrn.livros.web.controladores;
 
 import br.edu.ifrn.livros.persistencia.modelo.Usuario;
 import br.edu.ifrn.livros.persistencia.repositorio.UsuarioRepository;
+import br.edu.ifrn.livros.util.FileUploadUtil; // Importe
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils; // Importe
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile; // Importe
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -24,11 +27,9 @@ public class UsuarioController {
         List<Usuario> usuarios;
 
         if (busca != null && !busca.isEmpty()) {
-            // Se tiver busca, filtra pelos 3 campos
             usuarios = usuarioRepository.findByNomeContainingIgnoreCaseOrEmailContainingIgnoreCaseOrTelefoneContainingIgnoreCase(busca, busca, busca);
-            model.addAttribute("termoBusca", busca); // Devolve o termo para o input não limpar
+            model.addAttribute("termoBusca", busca);
         } else {
-            // Se não, traz tudo
             usuarios = usuarioRepository.findAll();
         }
 
@@ -42,16 +43,34 @@ public class UsuarioController {
         return "Usuario/formulario-usuario";
     }
 
+    // --- MÉTODO SALVAR ATUALIZADO ---
     @PostMapping("/salvar")
-    public String salvar(@Valid Usuario usuario, BindingResult result, RedirectAttributes attr) {
+    public String salvar(@Valid Usuario usuario, BindingResult result, 
+                         @RequestParam("file") MultipartFile file,
+                         RedirectAttributes attr) {
+        
         if (result.hasErrors()) {
             return "Usuario/formulario-usuario";
         }
         
-        usuarioRepository.save(usuario);
-        attr.addFlashAttribute("mensagem", "Usuário salvo com sucesso!");
+        try {
+            if (!file.isEmpty()) {
+                String nomeArquivo = StringUtils.cleanPath(file.getOriginalFilename());
+                usuario.setFoto(nomeArquivo);
+                usuarioRepository.save(usuario);
+                FileUploadUtil.salvarArquivo("uploads", nomeArquivo, file);
+            } else {
+                usuarioRepository.save(usuario);
+            }
+            
+            attr.addFlashAttribute("mensagem", "Usuário salvo com sucesso!");
+        } catch (Exception e) {
+            attr.addFlashAttribute("erro", "Erro ao salvar imagem: " + e.getMessage());
+        }
+        
         return "redirect:/usuarios";
     }
+    // --------------------------------
 
     @GetMapping("/editar/{id}")
     public String editar(@PathVariable("id") Long id, Model model) {
